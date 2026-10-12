@@ -1,0 +1,19 @@
+reflex==0.10.0
+# Reads the secure gold views (gold_secure) through a Databricks SQL Warehouse: no Spark and no Java in the image.
+databricks-sql-connector==4.6.0
+# The hosted app signs in to the warehouse as its own service principal (OAuth machine to machine): the connector
+# takes the token from the SDK, the way Databricks documents it. Locally the author's short-lived token is used.
+databricks-sdk==0.151.0
+# Saved copy of the views (tools/sample, SMOGCAST_DATA=sample): in-memory DuckDB, Databricks SQL translated by sqlglot.
+# sqlglot pinned to the version the guardrails were tested with in the pipeline repo.
+duckdb==1.5.6
+sqlglot==30.21.0
+pyyaml==6.0.3
+# The assistant's logic (this repo's own since 2026-10-10): versions as tested in the pipeline repo, where it began.
+numpy==2.4.6
+openai==3.24.0
+# The assistant's embeddings (RAG): sentence-transformers on PyTorch (torch is installed first, CPU build, in the
+# Dockerfile) – the same versions the pipeline image builds the index with.
+sentence-transformers==6.1.0
+transformers==5.18.0
+huggingface_hub==1.33.0

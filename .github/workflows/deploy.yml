@@ -1,0 +1,117 @@
+# =============================================================================
+# Deploy: build the app's image from the branch picked in "Use workflow from", push it to GitHub Container
+# Registry and put it on the Azure Container App of the chosen environment.
+#
+# The path of a change:
+#   1. pull request – ci.yml tests it; to try it on DEV: Actions -> deploy -> "Use workflow from" = the branch -> dev
+#   2. merge to main – deploy main to DEV the same way
+# PROD is not here yet: the app is hosted on DEV only. When PROD exists it joins the list of environments and takes
+# release tags only, like the pipeline repo's deploy.
+# Tests are not re-run here – ci.yml runs them on every pull request.
+#
+# Identity: the app's deploy identity (Terraform module `app_hosting`), signed in through OIDC – GitHub's token for
+# this job is exchanged for an Entra ID token, so there is no password or client secret anywhere. It may change the
+# image of this one Container App and nothing else. The image is pushed with the workflow's own GITHUB_TOKEN.
+# Settings come from the GitHub Environment (dev -> Variables); they are ids, not secrets:
+#   AZURE_CLIENT_ID                              – `terraform output app_deploy_client_id`
+#   AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID       – the tenant and the subscription of the environment
+#   CONTAINER_APP_NAME                           – `terraform output app_container_app_name`
+#   CONTAINER_APP_RESOURCE_GROUP                 – the resource group of the app (rg-smogcast-<env>)
+# The app's own settings and secrets (warehouse, service principal, language model) are not here: Terraform sets
+# them on the Container App, the secrets come from Key Vault. A deploy changes the image only.
+# =============================================================================
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Where to deploy what is picked in \"Use workflow from\""
+        type: choice
+        options: [dev]
+        default: dev
+
+permissions:
+  id-token: write   # the OIDC token for the Azure login
+  contents: read
+  packages: write   # push the image to ghcr.io
+
+# Two deploys to the same environment must not interleave; a running deploy is never cancelled halfway.
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: ${{ inputs.environment }}
+    env:
+      # One tag per commit: a tag that moved (latest) would leave the app on the old image without saying so.
+      IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+      APP: ${{ vars.CONTAINER_APP_NAME }}
+      GROUP: ${{ vars.CONTAINER_APP_RESOURCE_GROUP }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      # The image of the Dockerfile: PyTorch, the libraries, the embedding model and the built frontend. The layers
+      # are kept in the Actions cache, so a deploy that changed only the code rebuilds only the last ones.
+      - name: Build and push the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Log in to Azure (OIDC, no secret)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # The Azure CLI has the Container Apps commands as an extension; the runner starts without it.
+      - name: Install the Container Apps commands
+        run: az extension add --name containerapp --upgrade --only-show-errors
+
+      # A new revision starts with the new image; the old one keeps serving until the new one is ready.
+      - name: Put the image on the app
+        run: az containerapp update --resource-group "$GROUP" --name "$APP" --image "$IMAGE" --output none
+
+      - name: Wait until the new revision serves
+        run: |
+          for attempt in $(seq 1 40); do
+            read -r latest ready fqdn < <(az containerapp show --resource-group "$GROUP" --name "$APP" \
+              --query "[properties.latestRevisionName, properties.latestReadyRevisionName, properties.configuration.ingress.fqdn]" -o tsv | tr '\n' ' ')
+            if [ -n "$latest" ] && [ "$latest" = "$ready" ]; then
+              echo "revision ${latest} is ready"
+              echo "URL=https://${fqdn}" >> "$GITHUB_ENV"
+              curl --fail --silent --show-error --max-time 60 --output /dev/null "https://${fqdn}/info"
+              exit 0
+            fi
+            echo "waiting for ${latest} (ready: ${ready:-none}) – attempt ${attempt}"
+            sleep 15
+          done
+          echo "::error::the new revision did not become ready in 10 minutes – the previous one keeps serving"
+          exit 1
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Deploy to \`${{ inputs.environment }}\` – ${{ job.status }}"
+            echo "- \`${{ github.ref_name }}\` (commit \`${GITHUB_SHA::7}\`)"
+            echo "- image \`${IMAGE}\`"
+            echo "- ${URL:-the app's address: not reached}"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,17 @@
+.git
+.web
+.states
+screenshots
+__pycache__
+*.pyc
+.env
+tools/sample
+tools/eval
+# Needed only to build the knowledge base (tools/build_index.py), not to run the app
+data/rag_sources
+# Working documents of the project (handoff, journal, plans, agent rules) and repository plumbing: not part of
+# the app, and the image is public. The knowledge-base documents in docs/rag stay.
+*.md
+docs/*.md
+.github
+.mcp.json

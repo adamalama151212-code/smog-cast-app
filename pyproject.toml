@@ -1,0 +1,7 @@
+# Tooling only: the app is not installed as a package (Reflex runs it from this directory).
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+
+[tool.ruff]
+line-length = 120

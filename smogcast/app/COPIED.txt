@@ -1,0 +1,9 @@
+# The data contract, copied unchanged from the pipeline repo by tools/copy_logic.py (SHA-256, paths from the
+# repo root): the pipeline produces the gold tables by these files. Do not edit them here: change them in the
+# pipeline repo and copy again. Everything else in smogcast/app (the assistant's logic and conf/app.yaml
+# included) and the knowledge base (docs/rag, data/rag_sources, data/rag_index) are this repo's own.
+3e0afd1666f194a01185081cfb03d2c0a7b6a5b8b81d07f2d3bfe8621da25ddc  smogcast/app/conf/cities.yaml
+e3897617c1bd2cffc578ad1971c90f8f21842e7cbf8d96ed28d6e040b411181a  smogcast/app/conf/thresholds.yaml
+a22864f7d25b9580fb8af686734fedf58f8cdceb5f8414112abf964489602662  smogcast/app/conf/model.yaml
+b0772532745c985c6324dc4ada722284f2244ccff9fe0a84a93b2a240037fcd4  smogcast/app/conf/gold_dictionary.yaml
+fce8e1432f9d7a02ae9549a5af25046181c20918f83ccc703128760555a8648b  smogcast/core/schema.py

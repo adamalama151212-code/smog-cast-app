@@ -1,0 +1,106 @@
+# =============================================================================
+# The assistant (smogcast-app): language model, retrieval (RAG) and its documents.
+# This repo's own file (not part of the data contract copied from the pipeline repo – see COPIED.txt).
+#
+# Numbers in answers never come from the language model: forecasts and model quality are read
+# from gold tables through the SQL guardrails; the model only phrases them and answers knowledge
+# questions from the documents below, always with the sources shown.
+# =============================================================================
+app:
+  llm:
+    # Any OpenAI-compatible server: LM Studio locally (Docker reaches the host through
+    # host.docker.internal – set in docker-compose.yml), Databricks Model Serving in the cloud.
+    # Environment variables win over these values: SMOGCAST_LLM_BASE_URL, SMOGCAST_LLM_MODEL,
+    # SMOGCAST_LLM_API_KEY – keys never live in this file.
+    base_url: "http://localhost:1234/v1"
+    # "auto" = the first model the server lists (LM Studio: the model currently loaded).
+    model: auto
+    api_key: "not-needed-locally"
+    temperature: 0.1
+    timeout_s: 120
+
+  sql:
+    # Rows a generated query may return to the language model (guardrails enforce a LIMIT).
+    max_rows: 200
+
+  rag:
+    # Multilingual: Polish questions must find passages in English and Polish documents.
+    embedding_model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    chunk_chars: 1200
+    overlap_chars: 200
+    top_k: 6
+    # Knowledge documents written for the assistant (English, in this repository): the project itself and
+    # unofficial English translations of the Polish sources below. The assistant works in English, so the
+    # Polish originals are kept for provenance but stay out of the index (`index: false`).
+    project_docs_dir: "docs/rag"
+    # Official documents as downloaded, kept in this repository (`python tools/build_index.py --download`
+    # fetches the ones that are missing). The index (data/rag_index) is built from both directories and the
+    # gold data dictionary by `python tools/build_index.py`.
+    sources_dir: "data/rag_sources"
+    # `expect` guards against an HTML error page saved as a PDF (some portals answer bots that way).
+    # EU acts come from the Publications Office repository (Cellar), not EUR-Lex: EUR-Lex sits behind
+    # a bot challenge (AWS WAF, HTTP 202 with an empty body). Same files, byte for byte; Cellar ids
+    # were looked up via the Publications Office SPARQL endpoint (English PDF manifestation).
+    sources:
+      - id: pl_regulation_air_levels
+        title: "Polish Regulation on the levels of certain substances in the air (Journal of Laws 2021, item 845) – Polish original"
+        publisher: "Minister of Climate and Environment (ISAP / ELI)"
+        url: "https://eli.gov.pl/api/acts/DU/2021/845/text.pdf"
+        file: pl_regulation_air_levels.pdf
+        expect: pdf
+        index: false          # English translation of the PM parts: docs/rag/pl-air-quality-levels.md
+      - id: eu_directive_2024_2881
+        title: "Directive (EU) 2024/2881 on ambient air quality and cleaner air for Europe"
+        publisher: "European Union (Publications Office, CELEX 32024L2881)"
+        url: "https://publications.europa.eu/resource/cellar/3e442e84-a6e2-11ef-85f0-01aa75ed71a1.0006.01/DOC_1"
+        file: eu_directive_2024_2881.pdf
+        expect: pdf
+      - id: eu_directive_2008_50
+        title: "Directive 2008/50/EC on ambient air quality and cleaner air for Europe"
+        publisher: "European Union (Publications Office, CELEX 32008L0050)"
+        url: "https://publications.europa.eu/resource/cellar/13ad7ff4-6d84-45a6-bfe7-bc93232559d0.0006.01/DOC_1"
+        file: eu_directive_2008_50.pdf
+        expect: pdf
+      - id: gios_alarm_levels
+        title: "GIOŚ: information on high concentrations of air pollutants – Polish original"
+        publisher: "Chief Inspectorate of Environmental Protection (GIOŚ)"
+        url: "https://powietrze.gios.gov.pl/pjp/content/alarm_levels"
+        file: gios_alarm_levels.html
+        expect: html
+        index: false          # English translation: docs/rag/gios-high-pollution-advice.md
+      - id: who_ambient_air_quality
+        title: "WHO fact sheet: Ambient (outdoor) air pollution and health"
+        publisher: "World Health Organization"
+        url: "https://www.who.int/news-room/fact-sheets/detail/ambient-(outdoor)-air-quality-and-health"
+        file: who_ambient_air_quality.html
+        expect: html
+      # A9 (2026-10-09): the sources of docs/rag/particulate-matter-and-health.md and docs/rag/gios-air-quality-monitoring.md,
+      # kept for provenance only – the curated documents are indexed, not these long web pages.
+      - id: eea_air_pollution_health
+        title: "EEA: How air pollution affects our health"
+        publisher: "European Environment Agency"
+        url: "https://www.eea.europa.eu/en/topics/in-depth/air-pollution/how-it-affects-our-health"
+        file: eea_air_pollution_health.html
+        expect: html
+        index: false          # quoted and explained in docs/rag/particulate-matter-and-health.md
+      - id: eea_pm_status_2025
+        title: "EEA: Air quality status report 2025 – Particulate matter"
+        publisher: "European Environment Agency"
+        url: "https://www.eea.europa.eu/en/analysis/publications/air-quality-status-report-2025/particulate-matter"
+        file: eea_pm_status_2025.html
+        expect: html
+        index: false          # quoted in docs/rag/particulate-matter-and-health.md
+      - id: gios_about_us
+        title: "GIOŚ: Kim jesteśmy – Polish original"
+        publisher: "Chief Inspectorate of Environmental Protection (GIOŚ)"
+        url: "https://powietrze.gios.gov.pl/pjp/content/about_us"
+        file: gios_about_us.html
+        expect: html
+        index: false          # English translation: docs/rag/gios-air-quality-monitoring.md
+      - id: gios_monitoring_info
+        title: "GIOŚ: Informacje ogólne o pomiarach jakości powietrza – Polish original"
+        publisher: "Chief Inspectorate of Environmental Protection (GIOŚ)"
+        url: "https://powietrze.gios.gov.pl/pjp/content/measuring_air_assessment_measurings"
+        file: gios_monitoring_info.html
+        expect: html
+        index: false          # English translation: docs/rag/gios-air-quality-monitoring.md

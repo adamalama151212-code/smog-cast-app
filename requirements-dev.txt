@@ -1,0 +1,5 @@
+# Tests and tools only (docker compose --profile tools run --rm test | index); not in the hosted image.
+pytest==9.1.1
+# Reads the PDF sources when the knowledge base is built (tools/build_index.py) and when a test checks that the index
+# matches the documents; the version the index was first built with in the pipeline repo.
+pymupdf==1.28.2

@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <title>Informacje o wysokich stężeniach zanieczyszczeń w powietrzu - GIOŚ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portal Jakości Powietrza Głównego Inspektoratu Ochrony Środowiska"/>
+    <meta name="keywords" content="GIOŚ, Główny Inspektorat Ochrony Środowiska, Portal Jakości Powietrza, Bieżące dane pomiarowe, Bank danych pomiarowych, Ostrzeżenia, Mapy, Smog, Jakość powietrza"/>
+
+
+    <meta name="Author" content="created by Evertop Sp. z o.o."/>
+    <script src="/pjp/js/jquery-2.2.4.min.js"></script>
+    <script src="/pjp/js/jquery.cookie.js"></script>
+
+    <link rel="stylesheet" href="/pjp/fonts/stylesheet.css?version=20260904115128"/>
+    <link href="/pjp/bootstrap/css/bootstrap.min.css?version=20260904115128" rel="stylesheet" media="screen">
+    <script src="/pjp/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/pjp/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/pjp/css/responsiveslides.css?version=20260904115128">
+    <script src="/pjp/js/responsive-nav.js"></script>
+    <link rel="stylesheet" type="text/css" href="/pjp/css/responsive-nav.css?version=20260904115128">
+    <link rel="stylesheet" type="text/css" href="/pjp/css/main.css?version=20260904115128">
+    <script src="/pjp/js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="/pjp/css/jquery-eu-cookie-law-popup.css?version=20260904115128"/>
+    <link rel="stylesheet" type="text/css" href="/pjp/css/jquery-cookie-banner.css?version=20260904115128"/>
+    <script src="/pjp/js/jquery-eu-cookie-law-popup.js"></script>
+    <script src="/pjp/js/jquery-cookie-banner.js"></script>
+    <script src="/pjp/js/jPages.js"></script>
+
+    <script type="text/javascript" src="/pjp/js/jquery.validate.js"></script>
+    <script type="text/javascript" src="/pjp/js/jquery-validate.bootstrap-tooltip.js"></script>
+
+    <script type="text/javascript" src="/pjp/js/manager.js"></script>
+    <script type="text/javascript" src="/pjp/js/aes.js"></script>
+    <script type="text/javascript" src="/pjp/js/pbkdf2.js"></script>
+    <script type="text/javascript" src="/pjp/js/AesUtil.js"></script>
+    <link href="/pjp/img/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+
+        <script type="text/javascript">
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-56466682-7', 'auto');
+ga('send', 'pageview');
+        </script>
+
+    <style type="text/css">
+        #toggler {
+            color: white;
+        }
+
+        #toggler:HOVER {
+            color: white;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+
+        window.csrf = "";
+        window.csrf = "4e992af9-bec6-4c02-9458-686ded28809d";
+
+        window.loadingText = "Ładowanie";
+        window.regulationsText = "Korzystając z danych, informacji i materiałów zawartych na niniejszej stronie, akceptują Państwo Zasady korzystania z informacji udostępnianych w serwisie.";
+        window.regulationsLabel = "Regulamin";
+        window.regulationsButton = "Akceptuję";
+        window.cookiePolicyLabel = "Polityka ciasteczek";
+        window.cookiePolicyButton = "Akceptuję";
+        window.rejectCookieButton = "Odmów";
+        window.cookiePreferencesButton = "Zobacz preferencje";
+        window.cookieSavePreferencesButton = "Zapisz preferencje";
+        window.cookieBannerTitle = "Zarządzaj zgodami plików cookie";
+        window.cookieBannerContent = "W celu świadczenia usług na najwyższym poziomie stosujemy pliki cookies. Korzystanie z naszej witryny oznacza, że będą one zamieszczane w Państwa urządzeniu. Wyrażenie zgody pozwoli nam przetwarzać dane, takie jak zachowanie podczas przeglądania lub unikalne identyfikatory na tej stronie. Brak wyrażenia zgody lub wycofanie zgody może niekorzystnie wpłynąć na niektóre cechy i funkcje. W każdym momencie można dokonać zmiany ustawień Państwa przeglądarki.";
+        window.cookieCategoryFunctional = "Funkcjonalne";
+        window.cookieCategoryFunctionalActivity = "Zawsze aktywne";
+        window.cookieCategoryFunctionalInfo = "Przechowywanie lub dostęp do danych technicznych jest ściśle konieczny do uzasadnionego celu umożliwienia korzystania z konkretnej usługi żądanej przez subskrybenta lub użytkownika, lub wyłącznie w celu przeprowadzenia transmisji komunikatu przez sieć łączności elektronicznej.";
+        window.baseUrlString = "/pjp";
+
+        var navigation;
+
+        function setPaging(pagesId, containerId, pageElementsSize) {
+
+            if ($(pagesId).size() > 0) {
+                /* initiate the plugin */
+                $(pagesId).jPages({
+                    containerID: containerId,
+                    perPage: pageElementsSize,
+                    startPage: 1,
+                    startRange: 1,
+                    midRange: 3,
+                    endRange: 1,
+                    first: false,
+                    previous: false,
+                    next: false,
+                    last: false
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            sessionStorage.setItem("clickNumber", "firstClick");
+            //  console.log("CAPTCHA - on, test ver 1.2");
+            console.log("CAPTCHA - on, prod ver 1.1");
+            if (sessionStorage.getItem("language") !== null) {
+                var language = sessionStorage.getItem("language");
+                if (language == 'en' || language == 'pl') {
+                    $("html").attr("lang", language);
+                }
+            }
+            document.getElementById("zoom")
+                .addEventListener("keyup", function (event) {
+                    event.preventDefault();
+                    if (event.keyCode === 13) {
+                        document.getElementById("zoom").click();
+                    }
+                });
+            $("#zoom").click(function () {
+                var click = sessionStorage.getItem("clickNumber");
+
+                changeTextSizePortal(click);
+
+            });
+
+            $("#en").click(function () {
+                sessionStorage.setItem("language", "en");
+                var language = sessionStorage.getItem("language");
+            });
+
+
+            $("#pl").click(function () {
+                sessionStorage.setItem("language", "pl");
+                var language = sessionStorage.getItem("language");
+            });
+
+            $('body').append('<div id = "systemMode"></div>');
+            if ($('#systemMode').css('background-image') === 'none') {
+                $(":input").addClass("hcontrastBorder");
+            } else {
+                $(":input").removeClass("hcontrastBorder");
+            }
+
+            $("#main_menu_helper").focus(function () {
+                navigation.open();
+            });
+
+            $(".navbar-brand").focus(function () {
+                navigation.close();
+            });
+
+            $(".dropdown-toggle").focus(function () {
+            });
+
+            $(".pseudoHref").on('click', function (evt) {
+                evt.preventDefault();
+            });
+
+            setPaging('#content_pages', 'content_text', 50);
+            setPaging('#documents_pages', 'documents_container', 50);
+
+            $("#search").validate({
+                rules: {
+                    query: {required: true}
+                },
+                messages: {
+                    query: "<b>Brak wyszukiwanej frazy</b>"
+                },
+                tooltip_options: {
+                    query: {placement: 'bottom', html: true}
+                }
+            });
+
+
+            $(".dropdown > a").focus(function () {
+                $(".menu_nested").removeClass("opendropdown");
+                $(this).next().addClass("opendropdown");
+                $(this).next().find('li:first a:first').focus();
+            });
+            $(".dropdown2 > a").focus(function () {
+                $(this).next().addClass("opendropdown");
+
+            });
+            $(".dropdown2 > a").mouseover(function () {
+                $(this).next().addClass("opendropdown");
+            });
+
+            $(".menu_nested li a").unbind('keypress');
+            $(".menu_nested li a").keydown(function (e) {
+                if (e.keyCode == 9 && e.shiftKey) {
+                    var liElement = $(this).parent();
+                    if (liElement.index() == 0) {
+                        var prevLi = liElement.parent().parent().prev("li");
+                        if (prevLi.hasClass("dropdown")) {
+                            prevLi = liElement.parent().parent().prev("li").children("a");
+                            e.stopImmediatePropagation();
+                            setTimeout(function () {
+                                prevLi.focus();
+                            }, 100);
+                        } else if (prevLi.hasClass("menu-item")) {
+                            prevLi = liElement.parent().parent().prev("li").children("a");
+                            e.stopImmediatePropagation();
+                            setTimeout(function () {
+                                prevLi.focus();
+                            }, 100);
+                        } else {
+                            setTimeout(function () {
+                                $(".menu_nested").removeClass("opendropdown");
+                                navigation.close();
+                                $(".greybox3 a").focus();
+                            }, 100);
+                        }
+                    }
+                }
+            });
+
+            $("a .navbar-brand").focus(function () {
+                $(".menu_nested").removeClass("opendropdown");
+                navigation.close();
+            });
+
+        });
+
+
+        function processData(data) {
+            $("#map_header").empty();
+            $("#map_body").empty();
+
+            if (data.header != null || data.content != null) {
+                $("#map_info_button").show();
+                $("#map_header").append(data.header);
+                $("#map_body").append(data.content);
+            } else {
+                $("#map_info_button").hide();
+            }
+
+
+            $("#files").empty();
+            var length = data.list.length;
+            if (length > 0) {
+                $("#files").append("<div class = \"h3 siteHeader\">Pliki do pobrania</div>");
+                var point = 0;
+                $.each(data.list, function (key, value) {
+                    if (key % 3 == 0) {
+                        point = key;
+                        $("#files").append("<ul class = 'row list-unstyled list-inline' id = 'file_row_" + key + "'>");
+                        $("#file_row_" + point).append(generateFileCaption(value, data.contentId));
+                        if (key == length - 1) {
+                            $("files").append("</ul>");
+                        }
+                    } else if (key % 3 == 1) {
+                        $("#file_row_" + point).append(generateFileCaption(value, data.contentId));
+                        if (key == length - 1) {
+                            $("files").append("</ul>");
+                        }
+                    } else {
+                        $("#file_row_" + point).append(generateFileCaption(value, data.contentId));
+                        $("files").append("</ul>");
+                    }
+                });
+            }
+        }
+
+        function changeTextSizePortal(click) {
+            changeTextSize(click, "p");
+            changeTextSize(click, "label-size");
+            changeTextSize(click, "label-size2");
+            changeTextSize(click, "label-size3");
+            changeTextSize(click, "exposure-text-size");
+            changeTextSize(click, "span");
+            changeTextSize(click, "p1");
+            changeTextSize(click, "h");
+            changeTextSize(click, "a");
+            changeTextSize(click, "h1");
+            changeTextSize(click, "h3");
+            changeTextSize(click, "l");
+            changeTextSize(click, "ax");
+            changeTextSize(click, "m2");
+            changeTextSize(click, "m4");
+            changeTextSize(click, "td");
+            changeTextSize(click, "ms");
+            changeTextSize(click, "copyinfo");
+            changeTextSize(click, "invalid");
+            changeTextSize(click, "copyrights_index");
+            changeTextSize(click, "archive_file_name");
+            changeTextSize(click, "menuSize");
+            changeTextSize(click, "article-size");
+            changeTextSize(click, "window-size");
+            changeTextSize(click, "breadcrumb-size");
+            changeTextSize(click, "description");
+            changeTextSize(click, "articleDate");
+            changeTextSize(click, "maps-href-size");
+            changeTextSize(click, "article-title");
+            changeTextSize(click, "more-article");
+            changeTextSize(click, "btn-show-all");
+            changeTextSize(click, "card-header");
+            changeTextSize(click, "my-button");
+            changeTextSize(click, "btn-show-all-home");
+            changeTextSize(click, "home-news-header");
+            changeTextSize(click, "created");
+            changeTextSize(click, "footer-site");
+            changeTextSize(click, "wykressub2");
+            changeTextSize(click, "restrictions-size");
+
+        }
+
+        function changeTextSize(click, element) {
+            if (element == "p1") {
+                var el = document.getElementsByClassName('descr');
+            } else if (element == "exposure-text-size") {
+                var el = document.getElementsByClassName('exposure-text-size');
+            } else if (element == "maps-href-size") {
+                var el = document.getElementsByClassName('maps-href-size');
+            } else if (element == "label-size") {
+                var el = document.getElementsByClassName('label-size');
+            } else if (element == "label-size2") {
+                var el = document.getElementsByClassName('label-size2');
+            } else if (element == "label-size3") {
+                var el = document.getElementsByClassName('label-size3');
+            } else if (element == "restrictions-size") {
+                var el = document.getElementsByClassName('restrictions-size');
+            } else if (element == "h") {
+                var el = document.getElementsByClassName('h');
+            } else if (element == "h1") {
+                var el = document.getElementsByClassName('h1');
+            } else if (element == "h3") {
+                var el = document.getElementsByClassName('h3');
+            } else if (element == "l") {
+                var el = document.getElementsByClassName('l');
+            } else if (element == "m2") {
+                var el = document.getElementsByClassName('m2');
+            } else if (element == "footer-site") {
+                var el = document.getElementsByClassName('footer-site');
+            } else if (element == "m4") {
+                var el = document.getElementsByClassName('m4');
+            } else if (element == "archive_file_name") {
+                var el = document.getElementsByClassName('archive_file_name');
+            } else if (element == "wykressub2") {
+                var el = document.getElementsByClassName('wykressub2');
+            } else if (element == "ax") {
+                var el = document.getElementsByClassName('a');
+            } else if (element == "ms") {
+                var el = document.getElementsByClassName('ms');
+            } else if (element == "created") {
+                var el = document.getElementsByClassName('created');
+            } else if (element == "counter") {
+                var el = document.getElementsByClassName('counter');
+            } else if (element == "a") {
+                var el = document.querySelectorAll('a:not(.a, .invalid, .copyrights_index, .archive, .ms, .menuSize, .article-size, .window-size, .breadcrumb-size, .maps-href-size, .more-article,.home-news-header,.created,.footer-site, .counter)');
+            } else if (element == "invalid") {
+                var el = document.getElementsByClassName('invalid');
+            } else if (element == "menuSize") {
+                var el = document.getElementsByClassName('menuSize');
+            } else if (element == "article-title") {
+                var el = document.getElementsByClassName('article-title');
+            } else if (element == "more-article") {
+                var el = document.getElementsByClassName('more-article');
+            } else if (element == "btn-show-all") {
+                var el = document.getElementsByClassName('btn-show-all');
+            } else if (element == "copyrights_index") {
+                var el = document.getElementsByClassName('copyrights_index');
+            } else if (element == "p") {
+                var el = document.querySelectorAll('p:not(.archive_file_name,.modal-header,.article-title,.modal-body,.descr, .copyinfo, .copyrights_index, .wykressub2, .restrictions-size )');
+            } else if (element == "span") {
+                var el = document.querySelectorAll('span:not(.wcag_hide, .copyinfo, .copyrights_index, .counter)');
+            } else if (element == "copyinfo") {
+                var el = document.getElementsByClassName('copyinfo');
+            } else if (element == "home-news-header") {
+                var el = document.getElementsByClassName('home-news-header');
+            } else if (element == "article-size") {
+                var el = document.getElementsByClassName('article-size');
+            } else if (element == "my-button") {
+                var el = document.getElementsByClassName('my-button');
+            } else if (element == "card-header") {
+                var el = document.getElementsByClassName('card-header');
+            } else if (element == "breadcrumb-size") {
+                var el = document.getElementsByClassName('breadcrumb-size');
+            } else if (element == "articleDate") {
+                var el = document.getElementsByClassName('articleDate');
+            } else if (element == "btn-show-all-home") {
+                var el = document.getElementsByClassName('btn-show-all-home');
+            } else if (element == "description") {
+                var el = document.getElementsByClassName('textbox');
+            } else {
+                var el = document.getElementsByTagName(element);  // łapie element BODY
+
+            }
+
+            if (el.length > 0) {
+                var style = window.getComputedStyle(el[0], null).getPropertyValue('font-size');          // czyta CSS BODY
+                // wydobywa rozmiar z CSS
+                var rozmiar = parseFloat(style);
+                rozmiar = style.replace("px", "");
+                if (click == "firstClick") {
+                    if (element === "h2" || element === "ms" || element === "invalid" || element === "label-size" || element === "label-size2" || element === "label-size3") {
+                        rozmiar = rozmiar * 1.04;
+                    } else {
+                        rozmiar = rozmiar * 1.1;
+                    }
+                    sessionStorage.setItem("clickNumber", "secondClick");
+                } else if (click == "secondClick") {
+                    if (element === "h2" || element === "ms" || element === "invalid" || element === "label-size" || element === "label-size2" || element === "label-size3") {
+                        rozmiar = rozmiar * 1.04;
+                    } else {
+                        rozmiar = rozmiar * 1.1;
+                    }
+                    sessionStorage.setItem("clickNumber", "thirdClick");
+                } else if (click == "thirdClick") {
+                    if (element === "h2" || element === "ms" || element === "invalid" || element === "label-size" || element === "label-size2" || element === "label-size3") {
+                        rozmiar = rozmiar / 1.1025;
+                    } else {
+                        rozmiar = rozmiar / 1.21;
+                    }
+                    sessionStorage.setItem("clickNumber", "firstClick");
+
+                }
+                for (let i = 0; i < el.length; i++) {
+                    el[i].style.fontSize = rozmiar + "px";
+                }
+
+                sessionStorage.setItem("rozmiar", rozmiar);
+            }
+
+        }
+
+        function generateFileCaption(file, contentId) {
+            var result = "<li class = 'col-md-4'>";
+            result += "<div class = 'fileblockImage' style = 'width: 20%'><img src='/pjp/documents/icon/" + file.iconId + "' alt='' style='max-width: 30px; max-height: 30px; margin: auto;'></div>";
+            result += "<div class = 'fileblock' style = 'width: 80%;'><p>" + file.description + "</p>";
+            result += "<div class='more'>";
+            if (file.link != null && file.documentId != null && file.documentId == -1) {
+            } else {
+            }
+
+
+            var href = "";
+
+            if (file.link != null) {
+                href = file.link;
+                if (file.documentId != null && file.documentId == -1) {
+                    href = "/pjp" + file.link;
+                }
+            } else {
+                href = "/pjp/documents/download/" + file.documentId;
+            }
+
+            result += "<a href='" + href + "'><i class='glyphicon glyphicon-download'></i>Pobierz<span class=\"wcag_hide\">" + file.description + "</span></a>";
+            result += "</div></div></li>";
+            return result;
+        }
+    </script>
+</head>
+<body class="eupopup eupopup-top">
+
+<ul class="nav_skip list-unstyled">
+    <li><a href="#mm" tabindex="0">Przejdź do menu głównego</a></li>
+    <li><a href="#txt" tabindex="0">Przejdź do treści</a></li>
+    <li><a href="#sz" tabindex="0">Przejdź do wyszukiwarki</a></li>
+</ul>
+<div class="row header-section">
+    <!-- Logo section -->
+    <div class="col-lg-6 col-md-4 col-sm-4 col-xs-12 giostitle">
+        <a href="https://www.gov.pl/web/gios" class="navbar-img-link">
+            <img src="/pjp/img/logo_gios2.png"
+                 alt="Strona główna GIOŚ">
+        </a>
+    </div>
+
+    <!-- Top panel section -->
+    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 toppanel">
+        <!-- Search bar -->
+        <div class="search">
+            <a id="sz" tabindex="-1"></a>
+            <div class="h2 wcag_hide">
+Wyszukiwarka            </div>
+            <form action="/pjp/search" method="POST" class="form-inline form-container" id="search">
+                <div class="form-group">
+                    <label for="search_text">Szukana fraza:</label>
+                    <input type="text" class="form-control" name="query" id="search_text"
+                           placeholder="szukam informacji o..." tabindex="0">
+                </div>
+                <button type="submit" class="btn btn-search" tabindex="0">
+Szukaj                </button>
+            </form>
+        </div>
+
+        <!-- Icons section with gray background -->
+        <div class="gray-background">
+            <div class="icon-list">
+                <!-- Zoom icon -->
+                <button class="greybox" aria-label="Zoom">
+                    <div id="zoom" class="zoom-image"></div>
+                </button>
+
+                <!-- Contrast theme toggle -->
+                <button class="greybox" aria-label="Change contrast theme">
+                        <a href="?theme=contrast" class="invalid">
+Wersja kontrastowa                        </a>
+                </button>
+
+                <!-- Polish language toggle -->
+                <button class="greybox" aria-label="Polish language">
+                        <a id="pl" lang="pl" href="?lang=pl">
+                            <img src="/pjp/img/flag_pl.png"
+                                 alt="Wersja polska" style="width:24px; height:18px;">
+                        </a>
+                </button>
+
+                <!-- English language toggle -->
+                <button class="greybox" aria-label="English language">
+                        <a id="en" lang="en" href="?lang=en">
+                            <img src="/pjp/img/flag_en.png"
+                                 alt="English version" style="width:24px; height:18px;">
+                        </a>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row greenbg">
+    <div class="container col-lg-11 col-md-11 col-sm-10 col-xs-10">
+        <div class="rwdmenu">
+            <a class="menuSize" id="mm" tabindex="-1"></a>
+            <a class="menuSize" id="main_menu_helper" tabindex="0"></a>
+            <a class="menuSize" id="toggler" href="#" tabindex="-1">
+                <div class="nav-toggle" aria-hidden="true">Menu główne</div>
+                <div class="rwdmenuinfo">
+                    <div class="h2 l">
+                        Menu główne<span
+                                class="wcag_hide"> główne</span>
+                    </div>
+                </div>
+
+            </a>
+        </div>
+        <nav class="nav-1 nav-collapse">
+
+            <ul class="alt">
+                <li class="active"><a class="menuSize" href="/pjp/home">Strona główna</a>
+                </li>
+                <li><a class="menuSize" href="/pjp/content/about_us">Kim jesteśmy</a></li>
+                <li><a class="menuSize" href="/pjp/content/contact">Kontakt</a>
+                </li>
+            </ul>
+            <ul>
+                <li class="menu-item dropdown"><a href="#" tabindex="0"
+                                                  class="dropdown-toggle menuSize">Prawodawstwo</a>
+                    <ul class="menu_nested">
+                        <li><a class="menuSize"
+                               href="/pjp/publications/polish_law">Prawo polskie</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/publications/ue_law_air">Prawo UE</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/content/derogations_postponement">Odroczenia i derogacje</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/publications/international">Konwencje międzynarodowe</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/publications/strategies">Strategie</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/publications/other">Inne dokumenty</a></li>
+                    </ul>
+                </li>
+                <li class="menu-item dropdown"><a href="#" tabindex="0"
+                                                  class="dropdown-toggle menuSize">Normy jakości powietrza</a>
+                    <ul class="menu_nested">
+                        <li><a class="menuSize"
+                               href="/pjp/content/annual_assessment_air_quality_info">Roczna ocena jakości powietrza</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/content/annual_assessment_air_exposure_dust_info">Narażenie na pył PM2,5</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/content/annual_assessment_air_exposure_alarms_level_info">Poziomy alertowe</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item dropdown"><a href="#" tabindex="0"
+                                                  class="dropdown-toggle menuSize">Pomiary i ocena jakości powietrza</a>
+                    <ul class="menu_nested">
+                        <li><a tabindex="0" class="menuSize"
+                               href="/pjp/content/measuring_air_assessment_zone_info">Strefy</a>
+                        </li>
+                        <li><a tabindex="0" class="menuSize"
+                               href="/pjp/content/measuring_air_assessment_rating_info">Ocena</a>
+                        </li>
+                        <li><a tabindex="0" class="menuSize"
+                               href="/pjp/content/measuring_air_assessment_measurings">Pomiary</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/monitoring">Programy Państwowego Monitoringu Środowiska</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/air_protection_programs">Programy ochrony powietrza i plany działań krótkoterminowych</a>
+                </li>
+                <li class="menu-item dropdown"><a href="#" tabindex="0"
+                                                  class="dropdown-toggle menuSize">Prognozy jakości powietrza</a>
+                    <ul class="menu_nested">
+                        <li class="menu-item dropdown2"><a href="#"
+                                                           class="dropdown-toggle menuSize">Krótkoterminowe</a>
+                            <ul class="menu_nested shifted">
+                                <li class="menu-item"><a class="menuSize"
+                                                         href="/pjp/airPollution">Mapy prognoz</a>
+                                </li>
+                                <li class="menu-item"><a class="menuSize"
+                                                         href="/pjp/maps/forecast/provinces">Prognozy wojewódzkie</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item"><a class="menuSize"
+                                                 href="/pjp/content/air_quality_forecast_long_term">Długoterminowe</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/exposure_dust_pm">Narażenie na pył PM2,5</a>
+                </li>
+                <li class="menu-item dropdown regional-information"><a tabindex="0" href="#"
+                                                                       class="dropdown-toggle menuSize regional">Informacje regionalne</a>
+                    <ul class="menu_nested two-column-menu">
+                        <li><a class="menuSize" href="/pjp/rwms/1">Dolnośląskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/2">Kujawsko-pomorskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/3">Łódzkie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/4">Lubelskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/5">Lubuskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/6">Małopolskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/7">Mazowieckie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/8">Opolskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/9">Podkarpackie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/10">Podlaskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/11">Pomorskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/12">Śląskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/13">Świętokrzyskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/14">Warmińsko-mazurskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/15">Wielkopolskie</a>
+                        </li>
+                        <li><a class="menuSize" href="/pjp/rwms/16">Zachodniopomorskie</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="menu-item dropdown"><a href="#" tabindex="0"
+                                                  class="dropdown-toggle menuSize">Regionalne tło zanieczyszczeń</a>
+                    <ul class="menu_nested">
+                        <li><a class="menuSize"
+                               href="/pjp/content/regional_background_pollution_emep">Program EMEP</a>
+                        </li>
+                        <li><a class="menuSize"
+                               href="/pjp/content/regional_background_pollution_ue">Program UE</a>
+                        </li>
+                    </ul>
+                </li>
+                    <li class="menu-item"><a tabindex="0" class="menuSize"
+                                             href="https://powietrze.gios.gov.pl/depoz/">Chemizm opadów atmosferycznych</a>
+                    </li>
+
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/national_reference_laboratory_calibration">Krajowe Laboratorium Referencyjne</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/station/search">Wyszukiwarka stacji</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/publications/publication">Publikacje</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/projects">Projekty</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/terms_of_service">Regulamin</a>
+                </li>
+                <li class="menu-item"><a tabindex="0" class="menuSize"
+                                         href="/pjp/content/api">API</a></li>
+                    <li class="menu-item"><a tabindex="0" class="menuSize"
+                                             href="/pjp/login">Zaloguj się</a></li>
+            </ul>
+        </nav>
+        <div class="menu">
+            <ul class="nav navbar-nav">
+                <li class="active"><a tabindex="0" class="a"
+                                      href="/pjp/home">Strona główna</a></li>
+                <li><a class="a" tabindex="0"
+                       href="/pjp/content/about_us">Kim jesteśmy</a></li>
+                <li><a class="a" tabindex="0"
+                       href="/pjp/content/contact">Kontakt</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<a id="txt" tabindex="-1"></a>
+<html>
+<style type="text/css">
+    .max-width230 {
+        max-width: 230px !important;
+    }
+</style>
+<head>
+    <title>
+            Informacje o wysokich stężeniach zanieczyszczeń w powietrzu
+    </title>
+</head>
+<body>
+<div class="row greybg">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                            <li><a class="breadcrumb-size" href ="/pjp/home">Strona główna</a></li>
+                                <li><a class="breadcrumb-size" href ="/pjp/articles/0">Ostrzeżenia</a></li>
+                            <li class="active">Informacje ogólne</li>
+            </ol>
+        </div>
+    </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 submenupos">
+                        <a class="nav-toggle2" href="/pjp/home" aria-hidden="true" id="toggler2">Menu</a>
+                        <nav class="nav-2 nav-collapse2">
+                            <div class="h2 wcag_hide">Menu treści</div>
+                            <ul class="menusub"/>
+                                        <li style="max-width: 195px;"
+                                            class=" xtl   active">
+                                            <a class="ms" href="/pjp/content/alarm_levels">Informacje ogólne </a>
+                                        </li>
+                                        <li style="max-width: 195px;"
+                                            class="max-width230 xtl twolines   ">
+                                            <a class="ms" href="/pjp/warnings">Poziomy informowania i alarmowe </a>
+                                        </li>
+                                        <li style="max-width: 195px;"
+                                            class=" xtl   ">
+                                            <a class="ms" href="/pjp/warnings/permissible">Poziomy dopuszczalne </a>
+                                        </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+<div class="container">
+    <article>
+
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="h2">
+                        Informacje o wysokich stężeniach zanieczyszczeń w powietrzu
+                </div>
+                <div id="content_text" class="description_in_text_page"
+                     style="margin-left:10px;"><p style="text-align:justify"><br />
+<span style="color:#b22222"><strong><span style="font-size:14px">W przypadku wystąpienia sytuacji smogowej i przekroczenia poziomu informowania dla pyłu PM10 w powietrzu (100 &micro;g/m<sup>3</sup>), w celu zmniejszenia narażenia na wysokie stężenia zanieczyszczeń w powietrzu, małym dzieciom, kobietom w ciąży, osobom starszym oraz osobom z chorobami serca lub układu oddechowego, zaleca się ograniczenie przebywania poza budynkami. Dorosłym bez kłopot&oacute;w ze zdrowiem zaleca się powstrzymanie się od aktywności fizycznej na otwartym powietrzu. </span></strong></span></p>
+
+<p style="text-align:justify"><span style="font-size:14px"><strong>W przypadku wystąpienia przekroczenia poziomu alarmowego dla pyłu PM10 (150 &micro;g/m<sup>3</sup>), ze względu na bardzo wysokie stężenia zanieczyszczeń w powietrzu, zaleca się ograniczenie przebywania poza budynkami do niezbędnego minimum.</strong></span></p>
+
+<p style="text-align:justify"><strong><span style="font-size:14px">Komunikaty o ryzyku lub wystąpieniu przekroczenia publikowane są w sekcjach&nbsp;&quot;Przekroczenia i ryzyko przekroczeń&quot; wojew&oacute;dzkich podstron portalu Jakość Powietrza, w&nbsp; module<a href="http://powietrze.gios.gov.pl/pjp/rwms/"> Informacje regionalne</a>.</span></strong><br />
+&nbsp;</p>
+
+<p style="text-align:justify"><span style="font-size:14px">W zakładkach &bdquo;<strong>Poziomy informowania i alarmowe</strong>&rdquo; i &bdquo;<strong>Poziomy dopuszczalne</strong>&rdquo; publikowane są informacje o miejscu, czasie, wielkości i przyczynie przekroczenia na obszarze Polski przekroczenia odpowiednio <span style="color:#b22222"><strong>poziomu informowania</strong>, <strong>alarmowego</strong></span> lub <span style="color:#b22222"><strong>poziomu dopuszczalnego</strong></span>, dla kt&oacute;rego okres uśredniania wynosi 1&nbsp;godzinę lub 24 godziny.</span></p>
+
+<p style="text-align:justify"><span style="font-size:14px">Substancje, dla kt&oacute;rych określone są poziomy alarmowe, poziomy informowania i poziomy dopuszczalne oraz wartości tych poziom&oacute;w określa rozporządzenie Ministra Środowiska z dnia 24 sierpnia 2012 r. w sprawie poziom&oacute;w niekt&oacute;rych substancji w powietrzu (t.j. Dz. U.&nbsp; 2021, poz. 845), oraz rozporządzenie&nbsp;Ministra Środowiska z dnia 8 października 2019 r. zmieniające rozporządzenie w sprawie poziom&oacute;w niekt&oacute;rych substancji w powietrzu (Dz. U. 2019. poz. 1931),&nbsp; kt&oacute;rych treść jest zamieszczona w zakładce &bdquo;Prawodawstwo &ndash; Prawo polskie&rdquo;.&nbsp; W rozporządzeniach tych określony został m. in.:</span></p>
+
+<p><span style="font-size:14px">- &nbsp;&nbsp;&nbsp; <strong>poziom alarmowy</strong> dla pyłu PM10, ozonu (O<sub>3</sub>), dwutlenku siarki (SO<sub>2</sub>) i dwutlenku azotu (NO<sub>2</sub>);</span></p>
+
+<p><span style="font-size:14px">-&nbsp;&nbsp;&nbsp;&nbsp; <strong>poziom informowania</strong> dla pyłu PM10 i ozonu;</span></p>
+
+<p><span style="font-size:14px">-&nbsp;&nbsp;&nbsp;&nbsp; <strong>poziom dopuszczalny dla okresu uśredniania wynoszącego jedną godzinę</strong> dla dwutlenku siarki (SO<sub>2</sub>)</span></p>
+
+<p><span style="font-size:14px">&nbsp;&nbsp; &nbsp;&nbsp; i dwutlenku azotu (NO<sub>2</sub>);</span></p>
+
+<p><span style="font-size:14px">-&nbsp; &nbsp;&nbsp; <strong>poziom dopuszczalny dla okresu uśredniania wynoszącego 24 godziny</strong> dla dwutlenku siarki (SO<sub>2</sub>)</span></p>
+
+<p><span style="font-size:14px">&nbsp;&nbsp;&nbsp; &nbsp; i dla pyłu PM10.</span></p>
+
+<p style="text-align:justify"><span style="font-size:14px">Szczeg&oacute;łowe informacje na temat ww. poziom&oacute;w stężeń zanieczyszczeń w powietrzu zamieszczone są w zakładce &bdquo;Normy jakości powietrza&rdquo;.</span></p>
+
+<p style="text-align:justify"><span style="font-size:14px">Przekroczenia poziom&oacute;w informowania i poziom&oacute;w alarmowych są określane w oparciu o pomiary wykonywane urządzeniami do pomiar&oacute;w automatycznych. Przekroczenia poziom&oacute;w dopuszczalnych dla dwutlenku siarki (SO<sub>2</sub>), dwutlenku azotu (NO<sub>2</sub>) są określane w oparciu o pomiary wykonywane urządzeniami do pomiar&oacute;w automatycznych, przekroczenia poziom&oacute;w dopuszczalnych w odniesieniu do pyłu PM10 są określane w oparciu o pomiary wykonywane urządzeniami do pomiar&oacute;w automatycznych oraz manualnych.</span></p>
+</div>
+                <div id="content_pages" class="pages" style="float:right"></div>
+            </div>
+        </div>
+    </article>
+</div>
+    <div class="container">
+    </div>
+    <script>
+        var navigation2 = responsiveNav(".nav-2", {
+            animate: false,                    // Boolean: Use CSS3 transitions, true or false
+            transition: 284,                  // Integer: Speed of the transition, in milliseconds
+            label: "Menu",                    // String: Label for the navigation toggle
+            insert: "before",                  // String: Insert the toggle before or after the navigation
+            customToggle: "toggler2",                 // Selector: Specify the ID of a custom toggle
+            closeOnNavClick: false,           // Boolean: Close the navigation when one of the links are clicked
+            openPos: "relative",              // String: Position of the opened nav, relative or static
+            navClass: "nav-collapse2",         // String: Default CSS class. If changed, you need to edit the CSS too!
+            navActiveClass: "js-nav-active",  // String: Class that is added to <html> element when nav is active
+            jsClass: "js",                    // String: 'JS enabled' class which is added to <html> element
+            init: function () {
+            },               // Function: Init callback
+            open: function () {
+            },               // Function: Open callback
+            close: function () {
+            }               // Function: Close callback
+        });
+        $('html').click(function () {
+            navigation2.close();
+        });
+        $(".nav-2").click(function (event) {
+            event.stopPropagation();
+        });
+        $(".nav-2 ul li").click(function () {
+            location.href = $(this).find('a').attr("href");
+        });
+    </script>
+</body>
+</html>    <div class="footer-greybg"></div>
+	<div class="row whitebg">
+            <div class="container col-lg-12 col-md-12 col-sm-12 col-xs-12" id = "footer">
+            <div class="row rowFooterMargin">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="col-lg-5 col-md-5 col-sm-4 col-xs-7 rwms-map-eea">
+                	<a href = "https://eeagrants.org/"><img class="logo-nor" src="/pjp/img/eea.jpg" alt="Logo Norweski Mechanizm Finansowy"></a>
+                </div>
+                <p class="col-lg-7 col-md-7 col-sm-8 col-xs-5 rwms-map-copyinfo">
+Rozbudowa portalu zrealizowana w ramach projektu "Wzmocnienie systemu oceny jakości powietrza w Polsce w oparciu o doświadczenia norweskie" w ramach Programu Operacyjnego PL03 "Wzmocnienie monitoringu środowiska oraz działań kontrolnych" dofinansowana ze środków Mechanizmu Finansowego EOG 2009-2014.                </p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12"></div>
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="col-lg-5 col-md-5 col-sm-4 col-xs-7">
+                	<a href="https://www.gov.pl/web/gios/finansowanie"><img class="logo-img" src="/pjp/img/logo_nfosigw_pl.jpg" alt="Narodowy Fundusz Ochrony Środowiska i Gospodarki Wodnej."></a>
+                </div>
+                <p class="col-lg-4 col-md-4 col-sm-8 col-xs-5 rwms-map-copyinfo">
+Rozbudowa portalu zrealizowana ze środków Narodowego Funduszu Ochrony Środowiska i Gospodarki Wodnej.                </p>
+            </div>
+			</div>
+ <div class="clearfix"></div>
+                <div class = "row" style="margin-top: 25px; margin-left: 0; margin-right: 0; border-style: solid; border-color: #095D32; border-top-width:1px; border-bottom-width:1px; border-left-width: 0px; border-right-width: 0px">
+                	<p class = "col-md-4 copyrights_index">
+                	</p>
+                	<p class = "col-md-4 copyrights_index">
+                		<span><span lang="en">Copyright</span> © 2015 GIOŚ. Wszelkie prawa zastrzeżone</span><br/>
+                		<span class="counter f-counter"><a class="counter" href = "/pjp/content/terms_of_service">Regulamin i polityka prywatności</a></span><br/>
+                		<span class="counter f-counter" style="font-weight: bold"><a class="counter" href = "/pjp/content/declaration_of_availability">Deklaracja dostępności</a></span>
+                	</p>
+                	<p class = "col-md-4 copyrights_index">
+                	</p>
+                </div>
+ <div class="clearfix"></div>
+                <div class = "row" style="margin-left: 0; margin-right: 0">
+                	<p class = "col-md-4 copyrights_index">
+                    	<span class="counter f-counter">Odwiedziło nas:  2215954 osób</span>
+                	</p>
+                	<p class = "col-md-4 copyrights_index">
+                	</p>
+                	<p class = "col-md-4 copyrights_index">
+                		<span class="counter f-counter">Wykonanie: <strong><a class="created" href = "https://www.evertop.pl/">Evertop Sp. z o.o.</a></strong></span>
+                	</p>
+                </div>
+            </div>
+    </div>
+<script>
+    navigation = responsiveNav(".nav-1", {
+        animate: false,                    // Boolean: Use CSS3 transitions, true or false
+        transition: 284,                  // Integer: Speed of the transition, in milliseconds
+        label: "Menu",                    // String: Label for the navigation toggle
+        insert: "before",                  // String: Insert the toggle before or after the navigation
+        customToggle: "toggler",                 // Selector: Specify the ID of a custom toggle
+        closeOnNavClick: false,           // Boolean: Close the navigation when one of the links are clicked
+        openPos: "relative",              // String: Position of the opened nav, relative or static
+        navClass: "nav-collapse",         // String: Default CSS class. If changed, you need to edit the CSS too!
+        navActiveClass: "js-nav-active",  // String: Class that is added to <html> element when nav is active
+        jsClass: "js",                    // String: 'JS enabled' class which is added to <html> element
+        init: function () {
+        },               // Function: Init callback
+        open: function () {
+        },               // Function: Open callback
+        close: function () {
+        }               // Function: Close callback
+    });
+    $('html').click(function () {
+        navigation.close();
+    });
+    $(".nav-1").click(function (event) {
+        event.stopPropagation();
+    });
+
+
+</script>
+
+
+</body>
+</html>

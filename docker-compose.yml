@@ -1,0 +1,115 @@
+services:
+  # Local development: the image's default command is the production server (Dockerfile); here the dev server runs
+  # instead, on the code mounted from this directory.
+  app:
+    build: .
+    command: ["reflex", "run", "--env", "dev", "--backend-host", "0.0.0.0"]
+    ports:
+      - "127.0.0.1:3000:3000"   # frontend
+      - "127.0.0.1:8000:8000"   # backend (state over a websocket)
+    environment:
+      # Passed from the shell, never written to a file: the token is short-lived (databricks auth token).
+      DATABRICKS_HOST: ${DATABRICKS_HOST:-}
+      DATABRICKS_WAREHOUSE_ID: ${DATABRICKS_WAREHOUSE_ID:-}
+      DATABRICKS_TOKEN: ${DATABRICKS_TOKEN:-}
+      # The hosted app signs in as its service principal instead (the secret from Key Vault); set both here only to
+      # try that login locally. When both are set they win over the token.
+      DATABRICKS_CLIENT_ID: ${DATABRICKS_CLIENT_ID:-}
+      DATABRICKS_CLIENT_SECRET: ${DATABRICKS_CLIENT_SECRET:-}
+      SMOGCAST_CATALOG: ${SMOGCAST_CATALOG:-smogcast_dev}
+      # warehouse | sample (saved copy in tools/sample) | auto: the warehouse if configured, else the copy
+      SMOGCAST_DATA: ${SMOGCAST_DATA:-auto}
+      # Language model: any OpenAI-compatible endpoint (locally LM Studio on the host, hosted: Gemini); key never in files
+      SMOGCAST_LLM_BASE_URL: ${SMOGCAST_LLM_BASE_URL:-http://host.docker.internal:1234/v1}
+      SMOGCAST_LLM_MODEL: ${SMOGCAST_LLM_MODEL:-auto}
+      SMOGCAST_LLM_API_KEY: ${SMOGCAST_LLM_API_KEY:-}
+      # Reload the backend only when the code changes: without this every screenshot written to screenshots/ (and
+      # every test run) restarted the server, dropped the websockets and lost clicks (stage 3, 2026-10-09).
+      REFLEX_HOT_RELOAD_OVERRIDE_PATHS: /app/smogcast_app:/app/smogcast
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # Docker Desktop has it already; needed on Linux
+    volumes:
+      - .:/app                                 # hot reload of the Python code
+      - web:/app/.web                          # compiled frontend stays inside Docker (fast, no Windows file sync)
+      - reflex-home:/root/.local/share/reflex  # bun and its cache, downloaded once
+
+  # Headless browser for screenshots and smoke tests; shares the app's network, so localhost:3000/8000 work.
+  shots:
+    image: mcr.microsoft.com/playwright/python:v1.63.0-noble
+    network_mode: "service:app"
+    profiles: ["tools"]
+    working_dir: /work
+    # The image has the browsers, not the Python package: install the matching version, then run the script.
+    entrypoint: ["sh", "-c", "pip install -q --disable-pip-version-check playwright==1.63.0 && exec \"$$@\"", "--"]
+    environment:
+      # The app under test; set it in the shell to run the same smoke test against the hosted app.
+      SMOGCAST_BASE_URL: ${SMOGCAST_BASE_URL:-http://localhost:3000}
+    volumes:
+      - ./tools:/work/tools:ro
+      - ./screenshots:/work/screenshots
+
+  # Tests of the logic and the data layer: no warehouse, no browser (gold tables in DuckDB).
+  # The app's image (build it with `docker compose build app`): the same libraries the app runs with, PyTorch included.
+  test:
+    image: smog-cast-app-app
+    profiles: ["tools"]
+    environment:
+      SMOGCAST_DATA: sample
+    entrypoint: ["sh", "-c", "pip install -q --disable-pip-version-check -r requirements-dev.txt && exec \"$$@\"", "--"]
+    command: ["python", "-m", "pytest", "-q"]
+    volumes:
+      - .:/app
+
+  # Builds the assistant's knowledge base (data/rag_index) from docs/rag, data/rag_sources and the gold data dictionary.
+  # The app's image: it has PyTorch and the embedding model; pymupdf (PDF sources) comes from requirements-dev.txt.
+  index:
+    image: smog-cast-app-app
+    profiles: ["tools"]
+    entrypoint: ["sh", "-c", "pip install -q --disable-pip-version-check -r requirements-dev.txt && exec \"$$@\"", "--"]
+    command: ["python", "tools/build_index.py"]
+    volumes:
+      - .:/app
+
+  # The image exactly as the hosting runs it: no code mounted, the default command, one port (http://localhost:3001),
+  # at most 1 CPU and 2 GiB like the hosted container. Only the saved copy of the data is mounted, because it is not
+  # in the image.   docker compose --profile prod up -d app-prod
+  app-prod:
+    image: smog-cast-app-app
+    profiles: ["prod"]
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      DATABRICKS_HOST: ${DATABRICKS_HOST:-}
+      DATABRICKS_WAREHOUSE_ID: ${DATABRICKS_WAREHOUSE_ID:-}
+      DATABRICKS_TOKEN: ${DATABRICKS_TOKEN:-}
+      DATABRICKS_CLIENT_ID: ${DATABRICKS_CLIENT_ID:-}
+      DATABRICKS_CLIENT_SECRET: ${DATABRICKS_CLIENT_SECRET:-}
+      SMOGCAST_CATALOG: ${SMOGCAST_CATALOG:-smogcast_dev}
+      SMOGCAST_DATA: ${SMOGCAST_DATA:-auto}
+      SMOGCAST_LLM_BASE_URL: ${SMOGCAST_LLM_BASE_URL:-http://host.docker.internal:1234/v1}
+      SMOGCAST_LLM_MODEL: ${SMOGCAST_LLM_MODEL:-auto}
+      SMOGCAST_LLM_API_KEY: ${SMOGCAST_LLM_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./tools/sample:/app/tools/sample:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2g
+
+  # The smoke test against the production image:   docker compose --profile prod run --rm shots-prod python tools/shots.py
+  shots-prod:
+    image: mcr.microsoft.com/playwright/python:v1.63.0-noble
+    network_mode: "service:app-prod"
+    profiles: ["prod"]
+    working_dir: /work
+    entrypoint: ["sh", "-c", "pip install -q --disable-pip-version-check playwright==1.63.0 && exec \"$$@\"", "--"]
+    volumes:
+      - ./tools:/work/tools:ro
+      - ./screenshots:/work/screenshots
+
+volumes:
+  web:
+  reflex-home:

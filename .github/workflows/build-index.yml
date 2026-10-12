@@ -1,0 +1,94 @@
+# =============================================================================
+# Build the assistant's knowledge base (data/rag_index) and commit it to the branch this workflow was started on.
+#
+# When to start it (Actions -> build-index -> Run workflow -> pick YOUR BRANCH): the test
+# test_the_index_matches_the_documents failed in ci, because a document in docs/rag, the list of sources in
+# conf/app.yaml or the gold data dictionary changed and the index was not built again. Nothing has to be built
+# on a laptop: this workflow does what `docker compose --profile tools run --rm index` does locally.
+#
+# What it does: checks whether the index matches the documents (if it does, it stops - a build on another
+# machine could change the last digits of the vectors for nothing), builds it, runs the tests, commits
+# data/rag_index (and sources it downloaded) and starts ci on the new commit - a push made by a workflow does
+# not start other workflows by itself.
+#
+# Start it on a pull-request branch, not on a protected main: the commit is pushed to the branch it ran on.
+# =============================================================================
+name: build-index
+
+on:
+  workflow_dispatch:
+    inputs:
+      download:
+        description: "First download the official sources missing in data/rag_sources (new entries of conf/app.yaml)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # the commit with the new index
+  actions: write    # start ci on that commit
+
+concurrency:
+  group: build-index-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SMOGCAST_DATA: sample
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install the libraries
+        run: |
+          # The CPU build, the version of the Dockerfile: the default wheel pulls about 2 GB of CUDA libraries.
+          pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ hashFiles('smogcast/app/conf/app.yaml') }}
+
+      - name: Does the index match the documents?
+        id: check
+        run: |
+          if python tools/build_index.py ${{ inputs.download && '--download' || '' }} --check; then
+            echo "stale=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::The index already matches the documents - nothing to build."
+          else
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the index
+        if: steps.check.outputs.stale == 'true'
+        run: python tools/build_index.py
+
+      - name: Tests
+        run: python -m pytest -q
+
+      - name: Commit the index and start ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}   # through the environment, never pasted into the script
+        run: |
+          if [ -z "$(git status --porcelain -- data/rag_index data/rag_sources)" ]; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/rag_index data/rag_sources
+          git commit -m "chore(rag): rebuild the knowledge-base index"
+          git push origin "HEAD:$BRANCH"
+          gh workflow run ci.yml --ref "$BRANCH"

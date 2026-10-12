@@ -1,0 +1,15 @@
+# Reflex build output and runtime state
+.web
+.states
+assets/external/
+# Python
+__pycache__/
+*.py[cod]
+*.db
+# Local settings and short-lived tokens never go to git
+.env
+# Screenshots of local runs
+screenshots/
+tools/sample/
+# Results of the assistant's control questions (tools/ask_eval.py)
+tools/eval/
