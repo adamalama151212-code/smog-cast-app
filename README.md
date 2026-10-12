@@ -29,6 +29,7 @@ The project's working documents (journal, migration plan, handoff notes) are kep
 | `.github/workflows/ci.yml` | tests on every commit of a pull request (the same libraries as in the image) |
 | `.github/workflows/build-index.yml` | manual: builds the knowledge-base index and commits it to the branch it was started on – when `test_the_index_matches_the_documents` fails in `ci`, nothing has to be built locally |
 | `.github/workflows/deploy.yml` | **deployment** – manual: Actions → deploy → "Use workflow from" = the branch → `dev`. Builds the image from that branch, pushes it to GitHub Container Registry (tag = commit), signs in to Azure through OIDC (no password) and puts the image on the app in Azure Container Apps; waits until the new version answers. The environment's settings (ids, not secrets) are GitHub Environment variables – listed in the file's header |
+| `.github/workflows/release-please.yml`, `release-please-config.json`, `.release-please-manifest.json`, `VERSION`, `CHANGELOG.md` | **releases** – every merge to `main` updates one "release PR" with the next version (from the commit messages: `feat:` → minor, `fix:` → patch) and the changelog. Merging that PR bumps `VERSION`, tags the commit (`v0.2.0`), creates a GitHub release and deploys the tag to `dev`; the image also gets the version as a tag (`ghcr.io/<repo>:v0.2.0`). Needs once: Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests" |
 
 ## Running locally (Docker, Git Bash)
 

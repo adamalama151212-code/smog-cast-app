@@ -4,7 +4,9 @@
 #
 # The path of a change:
 #   1. pull request – ci.yml tests it; to try it on DEV: Actions -> deploy -> "Use workflow from" = the branch -> dev
-#   2. merge to main – deploy main to DEV the same way
+#   2. merge to main – release-please.yml updates the release PR (next version + CHANGELOG)
+#   3. release PR merged -> tag vX.Y.Z -> release-please.yml calls this workflow: the tag goes to DEV, and its image
+#      is also tagged with the version
 # PROD is not here yet: the app is hosted on DEV only. When PROD exists it joins the list of environments and takes
 # release tags only, like the pipeline repo's deploy.
 # Tests are not re-run here – ci.yml runs them on every pull request.
@@ -30,6 +32,15 @@ on:
         type: choice
         options: [dev]
         default: dev
+  workflow_call:   # release-please.yml: a new release tag goes to DEV
+    inputs:
+      environment:
+        type: string
+        required: true
+      ref:
+        description: "Branch or tag to deploy"
+        type: string
+        required: true
 
 permissions:
   id-token: write   # the OIDC token for the Azure login
@@ -47,12 +58,15 @@ jobs:
     timeout-minutes: 45
     environment: ${{ inputs.environment }}
     env:
+      REF: ${{ inputs.ref || github.ref }}
       # One tag per commit: a tag that moved (latest) would leave the app on the old image without saying so.
       IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
       APP: ${{ vars.CONTAINER_APP_NAME }}
       GROUP: ${{ vars.CONTAINER_APP_RESOURCE_GROUP }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REF }}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -63,6 +77,17 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      # The app always runs the commit's tag. A release (v0.2.0) gets its version as a second tag of the same image.
+      - name: Image tags
+        id: tags
+        run: |
+          tags="$IMAGE"
+          case "$REF" in
+            refs/tags/v*|v*) tags="${tags}"$'\n'"${IMAGE%:*}:${REF#refs/tags/}" ;;
+          esac
+          { echo "list<<EOF"; echo "$tags"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+          echo "$tags"
+
       # The image of the Dockerfile: PyTorch, the libraries, the embedding model and the built frontend. The layers
       # are kept in the Actions cache, so a deploy that changed only the code rebuilds only the last ones.
       - name: Build and push the image
@@ -70,7 +95,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE }}
+          tags: ${{ steps.tags.outputs.list }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -112,7 +137,7 @@ jobs:
         run: |
           {
             echo "### Deploy to \`${{ inputs.environment }}\` – ${{ job.status }}"
-            echo "- \`${{ github.ref_name }}\` (commit \`${GITHUB_SHA::7}\`)"
+            echo "- \`${REF#refs/*/}\` (commit \`${GITHUB_SHA::7}\`)"
             echo "- image \`${IMAGE}\`"
             echo "- ${URL:-address not reached}"
           } >> "$GITHUB_STEP_SUMMARY"
