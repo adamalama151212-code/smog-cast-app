@@ -92,8 +92,9 @@ jobs:
       - name: Wait until the new revision serves
         run: |
           for attempt in $(seq 1 40); do
-            read -r latest ready fqdn < <(az containerapp show --resource-group "$GROUP" --name "$APP" \
-              --query "[properties.latestRevisionName, properties.latestReadyRevisionName, properties.configuration.ingress.fqdn]" -o tsv | tr '\n' ' ')
+            mapfile -t app < <(az containerapp show --resource-group "$GROUP" --name "$APP" \
+              --query "[properties.latestRevisionName, properties.latestReadyRevisionName, properties.configuration.ingress.fqdn]" -o tsv)
+            latest="${app[0]:-}" ready="${app[1]:-}" fqdn="${app[2]:-}"
             if [ -n "$latest" ] && [ "$latest" = "$ready" ]; then
               echo "revision ${latest} is ready"
               echo "URL=https://${fqdn}" >> "$GITHUB_ENV"
@@ -113,5 +114,5 @@ jobs:
             echo "### Deploy to \`${{ inputs.environment }}\` – ${{ job.status }}"
             echo "- \`${{ github.ref_name }}\` (commit \`${GITHUB_SHA::7}\`)"
             echo "- image \`${IMAGE}\`"
-            echo "- ${URL:-the app's address: not reached}"
+            echo "- ${URL:-address not reached}"
           } >> "$GITHUB_STEP_SUMMARY"
