@@ -6,6 +6,7 @@
     ".": {
       "release-type": "simple",
       "package-name": "smog-cast-app",
+      "initial-version": "0.1.0",
       "version-file": "VERSION",
       "changelog-path": "CHANGELOG.md"
     }
