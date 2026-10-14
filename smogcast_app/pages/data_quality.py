@@ -1,4 +1,4 @@
-"""Data quality – what happened to the stream readings (the Streamlit page view_data_quality): how many were valid,
+"""Data quality – what happened to the stream readings: how many were valid,
 how many were rejected and why, for the live GIOŚ feed and for the fault demonstration."""
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ class QualityState(rx.State):
                 self.loading, self.error = False, "There is no data-quality summary yet."
             return
         rows = data["dq"].rows
-        # The live feed first, as a button and as the default (author, 2026-10-09): the page is about live data.
+        # The live feed first, as a button and as the default: the page is about live data.
         ids = sorted({r["source"] for r in rows}, key=lambda s: (s != "live", s))
         async with self:
             self.sources = [[s, LABELS.get(s, s)] for s in ids]

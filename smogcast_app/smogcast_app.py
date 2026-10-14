@@ -1,6 +1,6 @@
 """smogcast – will the daily PM10 / PM2.5 limit be exceeded tomorrow, and how sure is that?
 
-App entry: theme, fonts, design tokens, the six pages of the Streamlit app (Info first in the menu, Tomorrow the start
+App entry: theme, fonts, design tokens, the six pages (Info first in the menu, Tomorrow the start
 page) and the assistant prepared when the server starts.
 """
 

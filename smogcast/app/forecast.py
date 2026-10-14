@@ -34,12 +34,12 @@ REASON = {
     "no_valid_pm_yesterday": "no valid daily mean for yesterday (too few measured hours)",
     "no_complete_weather_forecast": "no complete weather forecast for tomorrow",
 }
-DASH = "–"   # the interface never shows an em dash or "None" (author's rule A3): an en dash marks "no value"
+DASH = "–"   # the interface never shows an em dash or "None": an en dash marks "no value"
 
 
 @dataclass(frozen=True)
 class Criterion:
-    """One acceptance test in plain words (A13): the code K1–K4 is only a small label next to it."""
+    """One acceptance test in plain words: the code K1–K4 is only a small label next to it."""
     question: str      # the test as a question a non-specialist understands
     failed: str        # the same test as a short reason it failed
     how: str           # how it is measured (tooltip)
@@ -91,7 +91,7 @@ def issued_cet(row: dict) -> str | None:
 
 
 def run_label(row: dict) -> str:
-    """Which run issued the forecast and when (A15), e.g. "official forecast · issued 11:43 CET".
+    """Which run issued the forecast and when, e.g. "official forecast · issued 11:43 CET".
     Rows written before run kinds existed have neither column: only the issue day is known then."""
     kind, when = row.get("run_kind"), issued_cet(row)
     if kind is None or when is None:
@@ -171,7 +171,7 @@ def criterion_cells(row: dict) -> list[str]:
 
 def criteria_rows(acceptance: list[dict], pollutant: str) -> list[list[str]]:
     """The pollutant's tests as table rows; the PM10-only tests appear for PM2.5 too, marked "– (PM10 only)",
-    so both tables have the same rows and nobody wonders whether K4 was skipped (A12)."""
+    so both tables have the same rows and nobody wonders whether K4 was skipped."""
     rows = {r["criterion"]: criterion_cells(r) for r in acceptance if r["pollutant"] == pollutant}
     if rows:
         for code in PM10_ONLY:
@@ -216,7 +216,7 @@ def describe(row: dict, reliability: list[dict], acceptance: list[dict], warning
     if ok is False:
         parts.append(f"Note: the {pol} model does not pass all the tests fixed before training: "
                      + "; ".join(failed_reasons(failed)) + ".")
-    # no model_version: a technical column, masked for the app's analyst identity (A16)
+    # no model_version: a technical column, masked for the app's analyst identity
     parts.append(f"Model: {str(row['model']).upper()} · {run_label(row)}.")
     return " ".join(parts)
 

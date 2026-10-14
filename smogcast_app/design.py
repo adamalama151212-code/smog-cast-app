@@ -1,4 +1,4 @@
-"""Design tokens of the smogcast interface – direction "Atlas" (chosen by the author on 2026-10-09).
+"""Design tokens of the smogcast interface – direction "Atlas".
 
 One source for every colour, size, font and duration. Pages and components never use raw values: they use the CSS
 custom properties generated here (``var(--ink)``, ``var(--space-4)`` …) or the Python constants below.
@@ -30,7 +30,7 @@ LIGHT = {
     "warning-ink": "#1a1206", "warning-soft": "rgba(235, 104, 52, 0.14)", "clear-soft": "rgba(42, 120, 214, 0.12)",
     "focus": "#2a78d6", "code-bg": "#e9e7df", "shadow": "0 1px 2px rgba(27, 31, 29, 0.08)",
     "pm10": "#1baf7a", "pm25": "#4a3aa7", "grid": "#e1e0d9", "axis": "#c3c2b7", "deemphasis": "#c3c2b7",
-    # stage 4 (WCAG AA): link text >= 4.5:1 on page/surface/sunk (focus blue is 3.9:1 – fine for a ring, not for
+    # WCAG AA: link text >= 4.5:1 on page/surface/sunk (focus blue is 3.9:1 – fine for a ring, not for
     # text); edges of controls (inputs, examples) >= 3:1 on raised and page
     "link": "#1d62bb", "control": "#8a8577",
 }

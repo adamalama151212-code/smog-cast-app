@@ -5,7 +5,6 @@ Python); the components only draw it.
 Rules (dataviz skill): one job per chart; thin marks with rounded ends; values as direct labels; text in ink colours,
 never in a series colour; pollutants as aqua / violet with a marker shape, never the forecast-state colours; every
 mark carries a native tooltip; the numbers are also in a table on the same page.
-Labels are the Streamlit app's (ui/charts.py of the pipeline repo), so both interfaces say the same.
 """
 
 from __future__ import annotations
@@ -26,7 +25,7 @@ SERIES = {"PM10": "pm10", "PM2.5": "pm25"}
 # --------------------------------------------------------------------------------------------- bars (HTML)
 def brier_rows(metrics: list[dict], pollutant: str, operational: str | None, city_id: str = "ALL") -> list[dict]:
     """Brier score of every model on the test year, best (lowest) first; the operational model highlighted.
-    Each pollutant has its own scale (A12): compare models within one pollutant, not PM10 with PM2.5."""
+    Each pollutant has its own scale: compare models within one pollutant, not PM10 with PM2.5."""
     data = sorted((r for r in metrics if r["pollutant"] == pollutant and r["city_id"] == city_id
                    and r["brier"] is not None), key=lambda r: r["brier"])
     top = max((r["brier"] for r in data), default=0) or 1
@@ -86,7 +85,7 @@ def calibration_lines(rows: list[dict], pollutants: list[str]) -> list[dict]:
         if data:
             ends[p] = data
     # Two lines end close together: the label of the line that ends higher goes above its end, the other one below,
-    # so a label never sits next to the other series' marker (stage 4: they used to be swapped on the Model page).
+    # so a label never sits next to the other series' marker.
     top = min(ends, key=lambda p: _y(ends[p][-1]["observed_frequency"])) if len(ends) > 1 else None
     out = []
     for p, data in ends.items():

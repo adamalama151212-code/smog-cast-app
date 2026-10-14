@@ -9,11 +9,10 @@ The contract is what the pipeline produces the gold tables by, so it is changed 
     python tools/copy_logic.py ["C:/Users/Leszek/DEMO RADPLUME/DEMO"]          # copy
     python tools/copy_logic.py --check [...]                                   # only compare, copy nothing
 
-NOT copied – this repo's own since 2026-10-10 (author's decision: the Streamlit app and packages/app leave the
-pipeline repo): the assistant's logic (__init__, assistant, forecast, guardrails, llm, rag, text), conf/app.yaml and,
-since 2026-10-11, the whole knowledge base: its documents (docs/rag), the downloaded sources (data/rag_sources) and
-the index built from them (data/rag_index, tools/build_index.py). After a change of gold_dictionary.yaml build the
-index again: the dictionary is part of the knowledge base (a test fails until you do).
+NOT copied – this repo's own since 2026-10-10: the assistant's logic (__init__, assistant, forecast, guardrails, llm,
+rag, text), conf/app.yaml and, since 2026-10-11, the whole knowledge base: its documents (docs/rag), the downloaded
+sources (data/rag_sources) and the index built from them (data/rag_index, tools/build_index.py). After a change of
+gold_dictionary.yaml build the index again: the dictionary is part of the knowledge base (a test fails until you do).
 """
 
 from __future__ import annotations

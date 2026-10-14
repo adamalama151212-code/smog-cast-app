@@ -1,7 +1,7 @@
-"""Info – how the forecast is made, in plain words (the Streamlit page view_info, texts unchanged).
+"""Info – how the forecast is made, in plain words.
 
 Thresholds and settings come from the configuration and the verdict from gold, so the page cannot drift from what the
-pipeline really does. A13: no list of K1–K4 here, the tests are on the Model page. A14: the four steps are equal tiles
+pipeline really does. No list of K1–K4 here, the tests are on the Model page. The four steps are equal tiles
 in one grid (two by two, then one column, on narrow screens).
 """
 

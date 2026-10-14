@@ -7,7 +7,7 @@ Every query – written by us or by a language model – goes through the same p
 
 Backends:
 - ``WarehouseBackend`` – the secure views ``<catalog>.gold_secure.<table>`` through a Databricks SQL Warehouse; the
-  views apply row/column security for the app's identity (role ``analyst``, A16). Settings from the environment:
+  views apply row/column security for the app's identity (role ``analyst``). Settings from the environment:
   the hosted app signs in as its service principal (OAuth), a developer with a short-lived token.
 - ``DuckDBBackend`` – the same views as a saved copy (``tools/sample/<table>.json``) or test rows in an in-memory
   DuckDB, schema ``gold_secure``; Databricks SQL is translated by sqlglot. Technical columns are set to NULL, as the
@@ -80,7 +80,7 @@ def technical_columns(dictionary: dict) -> dict[str, list[str]]:
 @dataclass(frozen=True)
 class WarehouseSettings:
     """Where the warehouse is and who asks. The hosted app signs in as its own service principal (role ``analyst``):
-    ``DATABRICKS_CLIENT_ID`` + ``DATABRICKS_CLIENT_SECRET``, the secret from Key Vault. Locally the author's
+    ``DATABRICKS_CLIENT_ID`` + ``DATABRICKS_CLIENT_SECRET``, the secret from Key Vault. Locally the
     short-lived token does (``DATABRICKS_TOKEN`` from tools/dev-env.sh). The principal wins when both are set."""
 
     host: str
@@ -325,12 +325,11 @@ class GoldReader:
 
     def schema_text(self) -> str:
         """Columns of every existing whitelisted table – the only schema a language model gets to see – with the
-        meaning of each column from the gold data dictionary (conf/gold_dictionary.yaml, A11): a model that knows
+        meaning of each column from the gold data dictionary (conf/gold_dictionary.yaml): a model that knows
         what `limit_ug_m3` means does not pass it off as an alarm level.
 
-        Technical columns (``class: technical``) are left out: the app reads the secure views as an analyst (A16), for
-        whom they are always NULL – a model that filtered on ``computed_at = MAX(computed_at)`` got no rows (stage 4,
-        with Gemini)."""
+        Technical columns (``class: technical``) are left out: the app reads the secure views as an analyst, for whom
+        they are always NULL – a model that filtered on ``computed_at = MAX(computed_at)`` got no rows."""
         columns = self.backend.columns()
         masked = technical_columns(self.dictionary)
         lines = []

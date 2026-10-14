@@ -1,6 +1,6 @@
 """The page shell: top bar with navigation (desktop), tab bar (phone), footer with the data sources and the "Refresh
-data" button (the Streamlit sidebar), and the pieces every data view shares – page heading, loading and error states,
-the SQL panel (A2), the forecast-state badge and the data-source note."""
+data" button, and the pieces every data view shares – page heading, loading and error states,
+the SQL panel, the forecast-state badge and the data-source note."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import reflex as rx
 from smogcast_app import design
 from smogcast_app.components.icons import mark
 
-# (route, Lucide icon, label, short label for the phone tab bar) – the Streamlit menu, Info first (author's choice).
+# (route, Lucide icon, label, short label for the phone tab bar) – Info first.
 NAV = [
     ("/info", "info", "Info", "Info"),
     ("/", "calendar-days", "Tomorrow", "Tomorrow"),
@@ -69,7 +69,7 @@ def layout(active: str, *body: rx.Component, source: rx.Var | None = None, refre
 
 
 def page_head(title: rx.Var | str, subtitle: rx.Var | str, *extra: rx.Component) -> rx.Component:
-    """Title first, then what the page is about (A5: nothing hides under a bar, the title is never cut off)."""
+    """Title first, then what the page is about (nothing hides under a bar, the title is never cut off)."""
     return rx.el.section(rx.el.h1(title, class_name="h1"), rx.el.p(subtitle, class_name="lead narrow"), *extra,
                          class_name="page-head")
 
@@ -86,21 +86,21 @@ def guard(error: rx.Var, loading: rx.Var, retry, skeleton: rx.Component, body: r
 
 
 def skeleton_rows(n: int = 6, note: str = "Loading the latest forecast…") -> rx.Component:
-    """The generic loading state (A10: plain words, no "Spark", no "gold tables")."""
+    """The generic loading state (plain words, no "Spark", no "gold tables")."""
     return rx.el.div(rx.el.p(note, class_name="note"), *[rx.el.div(class_name="sk sk-row") for _ in range(n)],
                      aria_busy="true")
 
 
 def sql_panel(sql: rx.Var | str, label: str = "SQL behind these numbers") -> rx.Component:
-    """A2: the query that produced the numbers, folded away; it can be pasted into the SQL Editor as it is."""
+    """The query that produced the numbers, folded away; it can be pasted into the SQL Editor as it is."""
     return rx.el.details(rx.el.summary(rx.icon("code-xml", size=15), label), rx.el.pre(rx.el.code(sql)),
                          class_name="sql")
 
 
 # Typography of text written outside the app, as the app writes it. The em dash is written as chr(0x2014), never as
-# the character: the tools that edit this file turn the escape into the character, and a test forbids it here (A3).
+# the character: the tools that edit this file turn the escape into the character, and a test forbids it here.
 _TYPOGRAPHY = str.maketrans({
-    0x2014: 0x2013,   # em dash -> en dash (A3)
+    0x2014: 0x2013,   # em dash -> en dash
     0x2011: "-",      # non-breaking hyphen (gpt-oss writes "missing‑value"; fonts may lack it: "24,hour")
     0x2010: "-",      # hyphen
     0x202F: " ",      # narrow no-break space ("6.69 %")
@@ -112,15 +112,15 @@ _TYPOGRAPHY = str.maketrans({
 
 def shown(text: str) -> str:
     """Text from outside the app as the user sees it: source passages quote official documents verbatim (the EU
-    directives use the em dash as a list mark, A3) and language models write typographic characters of their own –
+    directives use the em dash as a list mark) and language models write typographic characters of their own –
     all shown in the app's own typography."""
     return text.translate(_TYPOGRAPHY)
 
 
 def term(label: rx.Var | str, hint: rx.Var | str) -> rx.Component:
-    """A term with its explanation (A1, A13): shown on hover and on keyboard focus (CSS, assets/app.css ``.help``) and
+    """A term with its explanation: shown on hover and on keyboard focus (CSS, assets/app.css ``.help``) and
     read out by screen readers. Not ``rx.tooltip``: in Reflex 0.10 its Radix trigger opens on hover only, never on
-    focus (checked in stage 4), and a ``title`` attribute is mouse-only too."""
+    focus, and a ``title`` attribute is mouse-only too."""
     return rx.el.span(label, tab_index=0, class_name="help", data_tip=hint, aria_description=hint)
 
 

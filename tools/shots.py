@@ -83,7 +83,7 @@ with sync_playwright() as p:
                     row = page.locator(".msg.bot .source-row").nth(i).inner_text().replace("\n", " | ")
                     print(f"assistant: {question!r} – {row}")
             page.wait_for_timeout(500)
-            # A8 (author, 2026-10-09): the example questions stay during the conversation
+            # the example questions stay during the conversation
             if page.locator(".more-topics .example").count() != 8:
                 errors.append(f"conversation/{view}: the example questions are gone after the first answer")
             page.screenshot(path=f"screenshots/assistant-conversation-{view}.png", full_page=True)
