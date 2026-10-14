@@ -1,10 +1,10 @@
-"""Assistant – the chat, answered by smogcast.app.assistant with the conversation as history (A6), so
+"""Assistant – the chat, answered by smogcast.app.assistant with the conversation as history, so
 "and in Wrocław?" is understood.
 
-A8: a welcome screen with four topics and examples; after the first question the topics stay, under the conversation
-and above the question field (author, 2026-10-09: the examples stay useful); every answer says where it comes
+A welcome screen with four topics and examples; after the first question the topics stay, under the conversation
+and above the question field; every answer says where it comes
 from (forecast table, database query, documents, data dictionary) and shows its SQL, the rows of a data query and the
-document passages it used. Source passages quote official documents verbatim and are shown through ``shown`` (A3).
+document passages it used. Source passages quote official documents verbatim and are shown through ``shown``.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from smogcast_app.components.shell import layout, page_head, shown, sql_panel
 
 log = logging.getLogger(__name__)
 
-# A8: four topics with one or two examples each (the Streamlit welcome screen).
+# Four topics with one or two examples each.
 WELCOME = [
     ("cloud-fog", "Tomorrow's smog", ["Will there be smog in Kraków tomorrow?",
                                        "Why is the risk in Wrocław what it is tomorrow?"]),
@@ -58,7 +58,7 @@ class Message:
     row_count: str = ""
     passages: list[Passage] = dataclasses.field(default_factory=list)
     model: str = ""       # the language model that wrote the answer; "" = written from the tables or the dictionary
-    understood: str = ""  # the language model that only rewrote the question of an answer it did not write (T5)
+    understood: str = ""  # the language model that only rewrote the question of an answer it did not write
 
 
 # Answers the language model writes: from the documents and from a database query (it writes the SQL and the words,

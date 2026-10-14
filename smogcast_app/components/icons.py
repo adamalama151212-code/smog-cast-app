@@ -14,7 +14,7 @@ def _svg(*shapes: rx.Component, size: int = 20, label: str | None = None, class_
 
 
 def mark(size: int = 22, label: str | None = None) -> rx.Component:
-    """The smogcast mark: a city under layers of haze (the author's choice, 2026-10-09)."""
+    """The smogcast mark: a city under layers of haze."""
     return _svg(rx.el.path(d="M4 21V13h4v8M8 21V9h5v12M13 21v-6h4v6M17 21V12h3v9"),
                 rx.el.path(d="M2 5.5h8M13 5.5h9M5 2.5h12"), size=size, label=label, class_name="mark")
 

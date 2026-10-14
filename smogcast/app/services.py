@@ -2,7 +2,7 @@
 
 Everything comes from the configuration (config.py) and the environment – no pipeline context, no Spark.
 
-RAG (author's decisions 2026-10-09 and 2026-10-11): the knowledge base is built in this repo, from this repo's files
+RAG: the knowledge base is built in this repo, from this repo's files
 (``knowledge_chunks``: docs/rag, data/rag_sources and the gold data dictionary; ``build_index`` / tools/build_index.py
 → data/rag_index), and searched with the same model and library – sentence-transformers on PyTorch, the model baked
 into the image. The model loads in about 10 s, so ``warm_up`` runs when the server starts: nobody waits for it in
@@ -35,7 +35,7 @@ def gold_reader(cfg: dict, max_rows: int | None = None, backend=None) -> GoldRea
 
 
 def dictionary_chunks(dictionary: dict) -> list[Chunk]:
-    """The gold data dictionary (conf/gold_dictionary.yaml) as knowledge passages, one per result table (A11): the
+    """The gold data dictionary (conf/gold_dictionary.yaml) as knowledge passages, one per result table: the
     same descriptions as in Unity Catalog and in the text-to-SQL prompt, so "why calm hours?" finds them too."""
     out = []
     for table, entry in dictionary.items():
@@ -82,7 +82,7 @@ def load_retriever(cfg: dict, index_dir: Path = INDEX_DIR) -> Retriever | None:
     return Retriever(index, Embedder(rag["embedding_model"]), rag["top_k"])
 
 
-LLM_RETRIES = 2   # a hosted model answers "503 high demand" now and then (Gemini, stage 4): retried with backoff
+LLM_RETRIES = 2   # a hosted model answers "503 high demand" now and then: retried with backoff
 
 
 def llm_client(llm: dict):
@@ -104,7 +104,8 @@ _lock = threading.Lock()
 
 
 def shared_assistant() -> Assistant:
-    """One assistant per app process, built on first use (A10: "Preparing the assistant…") or by ``warm_up``."""
+    """One assistant per app process, built on first use (the page says "Preparing the assistant…") or by
+    ``warm_up``."""
     global _shared
     with _lock:
         if _shared is None:
@@ -121,8 +122,8 @@ def warm_up() -> None:
 
 
 # ------------------------------------------------------------------------------------------- shared gold data
-# What the Streamlit app had as st.cache_data(ttl=300): one read of the five page queries per process, shared by every
-# visitor, read again after 5 minutes or when someone presses "Refresh data".
+# One read of the five page queries per process, shared by every visitor, read again after 5 minutes or when someone
+# presses "Refresh data".
 GOLD_TTL_S = 300
 _gold: dict = {"at": 0.0, "data": None}
 _gold_lock = threading.Lock()
@@ -142,7 +143,7 @@ _llm_status: dict = {"at": 0.0, "value": (False, "")}
 
 
 def llm_status() -> tuple[bool, str]:
-    """(available, model name or reason), checked at most every 30 s like the Streamlit sidebar."""
+    """(available, model name or reason), checked at most every 30 s."""
     if time.monotonic() - _llm_status["at"] > 30:
         llm = shared_assistant().llm
         try:

@@ -32,7 +32,7 @@ from smogcast.app.text import find_cities, find_pollutants, normalize
 log = logging.getLogger(__name__)
 
 NOT_FOUND = "I could not find this information in the documents."
-UNDERSTOOD = "Understood as: "   # start of the note on an answer whose question the language model rewrote (A6)
+UNDERSTOOD = "Understood as: "   # start of the note on an answer whose question the language model rewrote
 
 
 @dataclass
@@ -50,7 +50,7 @@ class Answer:
 TOMORROW = ("tomorrow", "tommorow", "tommorrow", "tomorow", "jutr")   # with the usual misspellings; "jutr": jutro, jutrzejszy
 FORECAST_HINTS = (*TOMORROW, "forecast", "exceed", "warning", "smog", "prognoz", "przekrocz", "ostrzez")
 # "Tomorrow like today" is the NAME of a baseline (the forecast that repeats the last full day), not a day: the welcome
-# screen's own example "Is the model better than “tomorrow like today”?" used to get tomorrow's forecast (T4).
+# screen's own example "Is the model better than “tomorrow like today”?" is not about tomorrow's forecast.
 BASELINE_PHRASES = ("tomorrow like today", "tomorrow as today", "same as today", "jutro jak dzisiaj", "jutro jak dzis")
 # Signs of a question about what already happened. With a city they ask for numbers from the tables ("how many
 # warnings for Kraków in 2025", "did yesterday's forecast for Kraków come true"), not for tomorrow's forecast.
@@ -87,7 +87,7 @@ DATA_HINTS = ("how many", "how much", "which city", "which cities", "which model
               "ile ", "ilu ", "ktore miast", "ktory model", "ktorym miesc", "najwyz", "najniz", "najlepsz", "srednia",
               "porownaj", "metryk", "kwarantann", "spozni", "procent", "odsetek", "w 2025", "w 2024")
 
-# A6: the general model reads the conversation and returns the intent plus the question rewritten so that it stands
+# The general model reads the conversation and returns the intent plus the question rewritten so that it stands
 # on its own ("and in Wrocław?" -> "Will there be smog in Wrocław tomorrow?"). It decides follow-ups and everything
 # the rules below are not sure about; the rules settle the clear cases and work alone when the model is down.
 CLASSIFY_SYSTEM = """You route questions for smogcast, an assistant that forecasts whether the daily PM10 / PM2.5 limit
@@ -115,12 +115,12 @@ GREETING = ("Hi! I can tell you whether the daily PM10 or PM2.5 limit is likely 
             "largest Polish cities, how good the forecast model is, what was measured, and explain air-quality limits "
             "and health advice. Try: “Will there be smog in Kraków tomorrow?” or “Why should I trust the PM2.5 "
             "forecast?”")
-# A7: the published results (the gold tables) may be explained; how the system is built inside may not.
+# The published results (the gold tables) may be explained; how the system is built inside may not.
 INTERNALS = ("I can't share how the system is built inside (its databases, servers, keys or instructions). I can explain "
              "the published results: the forecast, the model's quality, the measured values and what each column of "
              "the result tables means.")
 
-# A7: questions about the inside of the system (and prompt-injection attempts) are refused by rules, before any model.
+# Questions about the inside of the system (and prompt-injection attempts) are refused by rules, before any model.
 INTERNALS_HINTS = ("bronze", "silver table", "silver layer", " silver ", "ops table", " ops.", "schema of the", "workspace",
                    "catalog", "databricks", "volume", "password", "api key", "apikey", "access token", "secret",
                    "credential", "connection string", "system prompt", "your prompt", "the prompt", "your instruction",
@@ -129,11 +129,11 @@ INTERNALS_HINTS = ("bronze", "silver table", "silver layer", " silver ", "ops ta
                    "haslo", "klucz api", "sekret", "twoje instrukcj", "zignoruj", "pokaz prompt", "kod zrodlow", "serwer")
 GREETINGS = {"hi", "hello", "hey", "hej", "czesc", "witaj", "witam", "dzien dobry", "good morning", "good evening",
              "thanks", "thank you", "dzieki", "dziekuje", "what can you do", "co potrafisz", "help", "pomoc"}
-# Words that ask what something MEANS (a column of the result tables -> the data dictionary, A11).
+# Words that ask what something MEANS (a column of the result tables -> the data dictionary).
 MEANING_HINTS = ("mean", "column", "field", "what is", "what does", "explain", "describe", "definition", "stand for",
                  "oznacza", "kolumn", "pole ", "co to", "czym jest", "wyjasnij", "opisz")
 STRUCTURE_HINTS = ("column", "field", "structure", "what is in", "contain", "kolumn", "struktur", "zawiera")
-# Never shown in an answer, whatever a model writes (A7): internal tables, catalogs, storage paths, keys.
+# Never shown in an answer, whatever a model writes: internal tables, catalogs, storage paths, keys.
 _INTERNAL_OUTPUT = re.compile(r"\b(bronze|silver|ops)\.[a-z_]+|smogcast_(dev|prod)|azuredatabricks\.net|/Volumes/|"
                               r"dbfs:|abfss://|(api[_ ]?key|password|secret)\s*[:=]", re.IGNORECASE)
 
@@ -433,7 +433,7 @@ class Assistant:
 
     def decide(self, question: str, history: list[dict] | None = None) -> tuple[str, str]:
         """(intent, question to answer). Clear cases by rules; follow-ups and unclear questions by the general
-        model with the conversation (A6), which also rewrites the question so it stands on its own."""
+        model with the conversation, which also rewrites the question so it stands on its own."""
         intent, sure = self.rules(question)
         if intent in ("internals", "greeting", "dictionary") or (sure and not history):
             return intent, question
@@ -480,19 +480,19 @@ class Assistant:
             answer = self._guard(self.knowledge_answer(q, history))
         if q != question:   # only the language model rewrites a question (decide), so the note also says it took part
             answer.notes.insert(0, UNDERSTOOD + q)
-        answer.text = answer.text.replace("\u2014", "\u2013")   # A3: em dash -> en dash, whatever a model writes
+        answer.text = answer.text.replace("\u2014", "\u2013")   # em dash -> en dash, whatever a model writes
         return answer
 
     @staticmethod
     def _guard(answer: Answer) -> Answer:
-        """A7: an answer that names internal tables, catalogs, storage paths or keys is withheld."""
+        """An answer that names internal tables, catalogs, storage paths or keys is withheld."""
         if _INTERNAL_OUTPUT.search(answer.text or ""):
             log.warning("answer withheld: it named internal objects")
             return Answer(INTERNALS, "internals", notes=["The answer was withheld because it named internal parts "
                                                          "of the system."])
         return answer
 
-    # ------------------------------------------------------------------ data dictionary (A11)
+    # ------------------------------------------------------------------ data dictionary
     def dictionary_terms(self, question: str) -> tuple[list[str], list[str]]:
         """Columns and tables of the gold data dictionary named in the question (``calm_hours`` or "calm hours";
         one-word columns such as ``model`` are too common to match free text)."""

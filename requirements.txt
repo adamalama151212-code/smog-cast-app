@@ -2,7 +2,7 @@ reflex==0.10.0
 # Reads the secure gold views (gold_secure) through a Databricks SQL Warehouse: no Spark and no Java in the image.
 databricks-sql-connector==4.6.0
 # The hosted app signs in to the warehouse as its own service principal (OAuth machine to machine): the connector
-# takes the token from the SDK, the way Databricks documents it. Locally the author's short-lived token is used.
+# takes the token from the SDK, the way Databricks documents it. Locally the short-lived token is used.
 databricks-sdk==0.151.0
 # Saved copy of the views (tools/sample, SMOGCAST_DATA=sample): in-memory DuckDB, Databricks SQL translated by sqlglot.
 # sqlglot pinned to the version the guardrails were tested with in the pipeline repo.

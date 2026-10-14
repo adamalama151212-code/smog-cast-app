@@ -1,8 +1,9 @@
-"""Language model behind any OpenAI-compatible endpoint (LM Studio locally, Databricks Model Serving later).
+"""Language model behind any OpenAI-compatible endpoint: today Cerebras ``gpt-oss-120b``, locally and in the hosted
+app; LM Studio on the host works too.
 
-Only the endpoint changes between environments (conf/app.yaml + SMOGCAST_LLM_* variables), so a
-locally distilled model, a model hosted in the cloud and a Databricks foundation model are
-interchangeable without code changes.
+One general model does everything – the routing of unclear questions, the SQL of data questions, the summaries of
+the rows and the answers from the documents. Only the endpoint changes (conf/app.yaml + SMOGCAST_LLM_* variables), so
+another model is a change of settings, not of code.
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ import re
 
 log = logging.getLogger(__name__)
 
-# Reasoning models (and their distillates) put their chain of thought in <think>…</think> before the
+# Reasoning models put their chain of thought in <think>…</think> before the
 # answer. The user gets the answer only; an unfinished block (cut by max tokens) is dropped as well.
 # Some models write <thinking>…</thinking> instead.
 _THINK = re.compile(r"<(think|thinking)>.*?(</\1>|$)", re.DOTALL | re.IGNORECASE)

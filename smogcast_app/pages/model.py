@@ -1,8 +1,8 @@
-"""Model – how good the model is (the Streamlit page view_model): the five tests fixed before training, the Brier
+"""Model – how good the model is: the five tests fixed before training, the Brier
 score of every model and the calibration, on the 2025 test year.
 
-A12: rows, not two independent columns – headings and verdicts, then the two tables, then the two charts, one caption;
-both tables have the same rows ("– (PM10 only)"); the Brier charts have their own scales. A13: each test is a question
+Rows, not two independent columns – headings and verdicts, then the two tables, then the two charts, one caption;
+both tables have the same rows ("– (PM10 only)"); the Brier charts have their own scales. Each test is a question
 in plain words, its code only a small grey label, how it is measured on hover.
 """
 

@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-c
 
 WORKDIR /app
 
-# PyTorch for the assistant's embeddings (author's decision 2026-10-09: the same library and version the pipeline
+# PyTorch for the assistant's embeddings (the same library and version the pipeline
 # builds the RAG index with). The CPU build: the default wheel pulls about 2 GB of CUDA libraries never used here.
 RUN pip install --no-cache-dir torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
 

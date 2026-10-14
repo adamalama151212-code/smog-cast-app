@@ -202,7 +202,7 @@ def test_saved_copy_reads_like_the_analyst_view(cfg):
     data = fc.load(reader)
     rows = data["forecast"].rows
     assert len(rows) == 20 and data["forecast"].source == "sample"
-    assert all(r["model_version"] is None and r["run_id"] is None for r in rows)   # technical columns masked (A16)
+    assert all(r["model_version"] is None and r["run_id"] is None for r in rows)   # technical columns masked
     assert isinstance(rows[0]["target_day"], dt.date) and isinstance(rows[0]["issued_at"], dt.datetime)
     assert "CET" in fc.run_label(rows[0])
     assert reader.exists("measured_daily") and not reader.exists("pm_hourly")

@@ -1,13 +1,13 @@
-"""City – one city in detail (the Streamlit page view_city): tomorrow's forecast for both pollutants in words
+"""City – one city in detail: tomorrow's forecast for both pollutants in words
 (forecast.describe), the calibration of the model with tomorrow's forecast marked, and how the model did in this
 city in the 2025 test year.
 
-A4: rows, not two independent columns – cards, then descriptions, then charts – level with each other, one caption
-under both charts. A1: "–" instead of None, a sentence about FAR, help on the metric names. A5: title first, then
+Rows, not two independent columns – cards, then descriptions, then charts – level with each other, one caption
+under both charts; "–" instead of None, a sentence about FAR, help on the metric names; title first, then
 the city picker. Route ``/city/<city_id>``; ``/city`` opens the first city.
 
 On phones the scores are two small tables, one per pollutant, with the scores as rows and the four models as columns
-(stage 4: eight cards of seven numbers made the page about 1,900 px longer), and the meaning of each score below.
+(eight cards of seven numbers would make the page about 1,900 px longer), and the meaning of each score below.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ WARNING_P = C["thresholds"]["warning_probability"]
 MIN_DAYS = C["model"]["acceptance"]["k3_calibration_min_bin_days"]
 POLLUTANTS = ("PM10", "PM2.5")
 
-# What the metrics of the city table mean (A1): help on each column name.
+# What the metrics of the city table mean: help on each column name.
 METRIC_HELP = {
     "Brier": "Mean squared error of the probability. Lower is better (0 = perfect).",
     "BSS": "Improvement over the calendar average. Above 0 = better than the calendar; 1 = perfect.",
@@ -182,7 +182,7 @@ def chart(p: str) -> rx.Component:
 
 
 def heading_cell(label: str, hint: str) -> rx.Component:
-    """A column name; with a hint, its explanation on hover and on keyboard focus (A1)."""
+    """A column name; with a hint, its explanation on hover and on keyboard focus."""
     return term(label, hint) if hint else rx.el.span(label)
 
 
