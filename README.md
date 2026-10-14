@@ -12,7 +12,7 @@ The project's working documents (journal, migration plan, handoff notes) are kep
 
 | File | What it does |
 |---|---|
-| `smogcast/app/` | the app's logic, **this repo's own, edited here**: `assistant` (routing, prompts, text-to-SQL, RAG), `forecast`, `guardrails`, `llm`, `rag`, `text`, `gold.py` (warehouse / saved copy), `config.py`, `services.py` (the assistant, the model loaded at start), `conf/app.yaml` |
+| `smogcast/app/` | the app's logic, **this repo's own, edited here**: `assistant` (routing, prompts, RAG; for a question about the data the language model writes one SQL query, which the guardrails check before it runs – the same general model as for everything else, no separate SQL model), `forecast`, `guardrails`, `llm`, `rag`, `text`, `gold.py` (warehouse / saved copy), `config.py`, `services.py` (the assistant, the model loaded at start), `conf/app.yaml` |
 | `smogcast/app/conf/{cities,thresholds,model,gold_dictionary}.yaml`, `smogcast/core/schema.py` | **the data contract – a copy from the pipeline repo, not to be edited here** (the pipeline produces the gold tables according to these files; the dictionary becomes the descriptions, tags and masks in Unity Catalog). A change in the pipeline → `python tools/copy_logic.py`; checksums in `smogcast/app/COPIED.txt`, `--check` compares with the pipeline |
 | `docs/rag/`, `data/rag_sources/`, `data/rag_index/` | **the assistant's knowledge base, all of it here (since 2026-10-11):** documents written for the assistant, the official sources as downloaded (PDF/HTML) and the index built from them (436 passages) |
 | `smogcast_app/design.py` | design tokens (colours of both themes, forecast states, typography, spacing, motion) → `assets/design.css` |
