@@ -8,8 +8,8 @@
 # =============================================================================
 app:
   llm:
-    # Any OpenAI-compatible server: LM Studio locally (Docker reaches the host through
-    # host.docker.internal – set in docker-compose.yml), Databricks Model Serving in the cloud.
+    # Any OpenAI-compatible server: today Cerebras gpt-oss-120b (locally from .env, in the hosted app from Key
+    # Vault); LM Studio on the host works too (Docker reaches it through host.docker.internal – docker-compose.yml).
     # Environment variables win over these values: SMOGCAST_LLM_BASE_URL, SMOGCAST_LLM_MODEL,
     # SMOGCAST_LLM_API_KEY – keys never live in this file.
     base_url: "http://localhost:1234/v1"
@@ -74,7 +74,7 @@ app:
         url: "https://www.who.int/news-room/fact-sheets/detail/ambient-(outdoor)-air-quality-and-health"
         file: who_ambient_air_quality.html
         expect: html
-      # A9 (2026-10-09): the sources of docs/rag/particulate-matter-and-health.md and docs/rag/gios-air-quality-monitoring.md,
+      # The sources of docs/rag/particulate-matter-and-health.md and docs/rag/gios-air-quality-monitoring.md,
       # kept for provenance only – the curated documents are indexed, not these long web pages.
       - id: eea_air_pollution_health
         title: "EEA: How air pollution affects our health"

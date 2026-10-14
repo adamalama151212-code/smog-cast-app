@@ -19,12 +19,13 @@ services:
       SMOGCAST_CATALOG: ${SMOGCAST_CATALOG:-smogcast_dev}
       # warehouse | sample (saved copy in tools/sample) | auto: the warehouse if configured, else the copy
       SMOGCAST_DATA: ${SMOGCAST_DATA:-auto}
-      # Language model: any OpenAI-compatible endpoint (locally LM Studio on the host, hosted: Gemini); key never in files
+      # Language model: any OpenAI-compatible endpoint – today Cerebras, set in .env (without it LM Studio on the host);
+      # the key never in files
       SMOGCAST_LLM_BASE_URL: ${SMOGCAST_LLM_BASE_URL:-http://host.docker.internal:1234/v1}
       SMOGCAST_LLM_MODEL: ${SMOGCAST_LLM_MODEL:-auto}
       SMOGCAST_LLM_API_KEY: ${SMOGCAST_LLM_API_KEY:-}
       # Reload the backend only when the code changes: without this every screenshot written to screenshots/ (and
-      # every test run) restarted the server, dropped the websockets and lost clicks (stage 3, 2026-10-09).
+      # every test run) restarted the server, dropped the websockets and lost clicks.
       REFLEX_HOT_RELOAD_OVERRIDE_PATHS: /app/smogcast_app:/app/smogcast
     extra_hosts:
       - "host.docker.internal:host-gateway"   # Docker Desktop has it already; needed on Linux
