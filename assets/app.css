@@ -6,8 +6,8 @@
 html, body { background: var(--page); }
 .app { min-height: 100vh; display: flex; flex-direction: column; background: var(--page); color: var(--ink);
   font-family: var(--font-ui); font-size: var(--fs-body); line-height: var(--lh-body); -webkit-font-smoothing: antialiased; }
-/* Resets with the specificity of a bare element (:where adds none), so any component class wins over them – stage 4:
-   `.app a` / `.app button` used to beat `.link`, `.seg`, `.example` and `.button`, hiding links and button borders. */
+/* Resets with the specificity of a bare element (:where adds none), so any component class wins over them – otherwise
+   `.app a` / `.app button` beat `.link`, `.seg`, `.example` and `.button`, hiding links and button borders. */
 :where(.app) a { color: inherit; text-decoration: none; }
 :where(.app) button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 .link { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
@@ -113,6 +113,12 @@ html, body { background: var(--page); }
 .label { fill: var(--ink); font-family: var(--font-ui); font-size: 22px; font-weight: 600; paint-order: stroke;
   stroke: var(--land); stroke-width: 6px; stroke-linejoin: round; pointer-events: none; }
 .pin { transition: opacity var(--motion-fast) var(--ease); }
+/* places that are not forecast cities: the point, the blue halo (one fixed size) and the label of a city, no
+   percentage; a link to a video in a new tab – the name is clickable too */
+.place-dot { fill: var(--clear); stroke: var(--surface); stroke-width: 3; }
+.place .label { pointer-events: auto; }
+.place:is(:hover, :focus-visible) .place-dot { fill: var(--link); }
+.place:is(:hover, :focus-visible) .label { fill: var(--link); }
 /* the list and the map point at each other: hovering or focusing a city in the list lifts it on the map */
 .hero:has(.rank-row:hover, .rank-row:focus-visible) .pin { opacity: .35; }
 .hero:has(.rank-row[data-city="warszawa"]:is(:hover, :focus-visible)) .pin[data-city="warszawa"],
@@ -179,7 +185,7 @@ html, body { background: var(--page); }
   transition: background var(--motion-fast) var(--ease), border-color var(--motion-fast) var(--ease); }
 .example:hover:not(:disabled) { background: var(--sunk); border-color: var(--ink-2); color: var(--ink); }
 .example:disabled { opacity: .55; cursor: default; }
-/* the topics stay during a conversation, above the question field (A8, author 2026-10-09) */
+/* the topics stay during a conversation, above the question field*/
 .more-topics { margin-top: var(--space-7); }
 .topics-title { font-family: var(--font-display); font-size: var(--fs-display-3); line-height: var(--lh-display-3);
   font-weight: 500; margin: 0 0 var(--space-3); }
@@ -198,7 +204,7 @@ html, body { background: var(--page); }
 .thinking { margin-top: var(--space-4); }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* as wide as the topic cards above it (author, 2026-10-09); the conversation itself keeps a readable width */
+/* as wide as the topic cards above it. the conversation itself keeps a readable width */
 .composer { position: sticky; bottom: var(--space-4); margin-top: var(--space-6); display: flex;
   gap: var(--space-2); align-items: center; padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   background: var(--raised); border: 1px solid var(--control); border-radius: var(--radius-pill); box-shadow: var(--shadow); }
@@ -238,7 +244,7 @@ html, body { background: var(--page); }
   border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font-size: var(--fs-small); }
 .ok { color: var(--clear); } .bad { color: var(--warning); }
 
-/* ------------------------------------------------------------------ City and Model: rows of pairs (A4, A12) */
+/* ------------------------------------------------------------------ City and Model: rows of pairs */
 .picker { display: inline-flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); }
 .picker-label { color: var(--ink-2); font-size: var(--fs-small); }
 .select { font: inherit; color: var(--ink); background: var(--raised); border: 1px solid var(--control);

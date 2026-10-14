@@ -175,7 +175,7 @@ def test_forecast_text_is_honest(gold, cfg):
     assert "**72%**" in text and "**warning**" in text
     assert "at forecasts of 70%–80% the limit was exceeded on 55% of days (40 days)" in text   # test split only
     assert "does not pass all the tests" in text and "not well calibrated" in text
-    assert "final" not in text and "issued 2026-10-01" in text          # no model_version (A16); no run kind yet
+    assert "final" not in text and "issued 2026-10-01" in text          # no model_version; no run kind yet
     missing = fc.describe(rows[("gdansk", "PM10")], [], [], 0.5)
     assert "no forecast" in missing and "yesterday" in missing
 
@@ -214,14 +214,14 @@ def test_pm25_table_shows_the_pm10_only_tests_as_not_applicable():
     acc = [{"pollutant": "PM2.5", "criterion": k, "description": "", "value": 0.1, "threshold": 0.15, "passed": True}
            for k in ("K1", "K2", "K3")]
     rows = fc.criteria_rows(acc, "PM2.5")
-    assert [r[0] for r in rows] == ["K1", "K2", "K3", "K4a", "K4b"]     # equal tables for both pollutants (A12)
+    assert [r[0] for r in rows] == ["K1", "K2", "K3", "K4a", "K4b"]     # equal tables for both pollutants
     assert rows[3][1] == "Does it catch smog days?" and rows[3][4] == "– (PM10 only)"
     assert fc.criteria_rows([], "PM2.5") == []
 
 
 def test_run_label_shows_the_real_run_and_time():
     row = {"issue_day": D, "run_kind": "official", "issued_at": dt.datetime(2026, 10, 1, 10, 43)}
-    assert fc.run_label(row) == "official forecast · issued 2026-10-01, 11:43 CET"       # UTC + 1 h = CET (A15)
+    assert fc.run_label(row) == "official forecast · issued 2026-10-01, 11:43 CET"       # UTC + 1 h = CET
     assert fc.run_label({**row, "run_kind": "preliminary", "issued_at": dt.datetime(2026, 9, 30, 23, 41)}) ==         "preliminary – this morning's readings are not in yet · issued 2026-10-01, 00:41 CET"
     assert fc.run_label({"issue_day": D}) == "issued 2026-10-01"
 
@@ -385,7 +385,7 @@ def test_gold_columns_are_explained_from_the_data_dictionary(cfg):
 
 
 def test_a_city_or_the_name_of_a_baseline_does_not_force_tomorrows_forecast(cfg):
-    """T4 (2026-10-10): every question naming a city, and the welcome screen's own "tomorrow like today" example, used
+    """Every question naming a city, and the welcome screen's own "tomorrow like today" example, used
     to be answered with tomorrow's forecast. Rules alone, no model."""
     a = Assistant(cfg, None, FakeLLM(up=False))
     for q in ("How many PM2.5 warnings did the model issue for Kraków in 2025, and how many were right?",
@@ -433,7 +433,8 @@ def test_a_question_about_numbers_is_not_refused_because_the_model_calls_it_inte
 
 
 def test_an_answer_says_when_the_language_model_only_understood_the_question():
-    """T5: "And in Wrocław?" is answered from the forecast table, but the model read the city from the conversation."""
+    """The follow-up "And in Wrocław?" is answered from the forecast table, but the model read the city from the
+    conversation."""
     from smogcast.app.assistant import Answer
     from smogcast_app.pages.assistant import from_answer
 
@@ -481,7 +482,7 @@ def test_no_em_dash_in_the_app_or_its_knowledge_base():
              *(root / "assets").glob("*.css"),
              *(root / "docs" / "rag").glob("*.md")]
     offending = [str(f.relative_to(root)) for f in files if "—" in f.read_text(encoding="utf-8")]
-    assert offending == [], offending                                    # the author's rule A3
+    assert offending == [], offending                                    # no em dash anywhere in the app
     # Passages quote official documents verbatim (EU directives list items with "—"); the app shows them through
     # shell.shown(), which turns the em dash into an en dash.
     import json
@@ -494,8 +495,22 @@ def test_no_em_dash_in_the_app_or_its_knowledge_base():
 
 
 def test_model_typography_is_shown_in_the_apps_own():
-    """gpt-oss (Cerebras) writes non-breaking hyphens, narrow spaces and 【n】 citations (stage 4)."""
+    """gpt-oss (Cerebras) writes non-breaking hyphens, narrow spaces and 【n】 citations."""
     from smogcast_app.components.shell import shown
 
     raw = "Quarantined missing‑value readings: 596 (6.69 %) — limit them【6】."
     assert shown(raw) == "Quarantined missing-value readings: 596 (6.69 %) – limit them[6]."
+
+
+def test_places_without_a_forecast_sit_where_the_map_puts_its_cities():
+    """Zbąszynek and Dawidy Bankowe (links to videos) are placed by the projection that reproduces every city."""
+    from smogcast_app.pages.tomorrow import CFG, PLACES, on_map
+    from smogcast_app.poland_outline import CITY_XY, VIEWBOX
+
+    for city_id, (x, y) in CITY_XY.items():
+        city = CFG["cities"][city_id]
+        px, py = on_map(city["lat"], city["lon"])
+        assert abs(px - x) < 1.5 and abs(py - y) < 1.5, city_id
+    width, height = (float(v) for v in VIEWBOX.split()[2:])
+    for name, (x, y), url in PLACES:
+        assert 0 < x < width and 0 < y < height and url.startswith("https://"), name

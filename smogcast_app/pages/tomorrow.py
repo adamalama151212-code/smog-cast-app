@@ -1,9 +1,7 @@
 """Tomorrow – the start page: the answer in one sentence, the map of Poland with the ten cities, the ranked list, one
 card per city, the model's verdict, the data table and the SQL.
 
-Streamlit had four tiles (forecast for · cities with a warning · highest probability · model reliability), a bar chart
-and city cards; here the same facts are the headline, the map with the list, the cards and the verdict. Wording of
-runs, reasons and verdicts comes from smogcast.app.forecast, so the page and the assistant say the same.
+Wording of runs, reasons and verdicts comes from smogcast.app.forecast, so the page and the assistant say the same.
 
 ``/tomorrow/preview`` shows a day of the 2025 test year with warnings (gold.backtest_predictions of the operational
 model), to see what a smog day looks like in October; the page says so.
@@ -17,6 +15,7 @@ import logging
 import math
 
 import reflex as rx
+from reflex.components.el.elements.inline import A
 
 from smogcast.app import forecast as fc
 from smogcast.app import services
@@ -45,6 +44,7 @@ LEFT JOIN gold.measured_daily m ON m.city_id = p.city_id AND m.pollutant = p.pol
 WHERE p.split = 'test' AND p.target_day = DATE '{PREVIEW_DAY}'
 ORDER BY p.pollutant, p.probability DESC"""
 
+PLACE_HALO = 12
 
 # --------------------------------------------------------------------------------------------- formatting
 def as_date(d) -> dt.date:
@@ -57,13 +57,28 @@ def long_day(d) -> str:
 
 
 def run_text(row: dict) -> str:
-    """A15: the real kind of run and its CET time of issue, in the words of forecast.RUN_LABEL."""
+    """The real kind of run and its CET time of issue, in the words of forecast.RUN_LABEL."""
     when = fc.issued_cet(row)
     if when is None:
         return "The model's forecast for this day in the 2025 test year" if row.get("run_kind") is None \
             else f"Forecast issued {long_day(row['issue_day'])}"
     kind = fc.RUN_LABEL.get(row.get("run_kind"), "forecast")
     return f"{kind[:1].upper()}{kind[1:]}, issued {long_day(row['issue_day'])} at {when}"
+
+
+def on_map(lat: float, lon: float) -> tuple[float, float]:
+    """A point in the map's units: the outline's equirectangular projection, read off Warszawa and Kraków."""
+    (xw, yw), (xk, yk) = CITY_XY["warszawa"], CITY_XY["krakow"]
+    w, k = CFG["cities"]["warszawa"], CFG["cities"]["krakow"]
+    return (xw + (lon - w["lon"]) * (xk - xw) / (k["lon"] - w["lon"]),
+            yw + (lat - w["lat"]) * (yk - yw) / (k["lat"] - w["lat"]))
+
+
+
+PLACES = (
+    ("Zbąszynek", on_map(52.2436, 15.8139), "https://www.youtube.com/watch?v=UKf4mAN-7ek"),
+    ("Dawidy Bankowe", on_map(52.1232, 20.9795), "https://youtu.be/RQsuVdjxNOc?t=98"),
+)
 
 
 def halo(p: float | None) -> float:
@@ -109,7 +124,7 @@ def headline(rows: list[dict], pollutant: str) -> list[str]:
 
 
 def verdicts(acceptance: list[dict]) -> list[dict[str, str]]:
-    """The model's verdict on the 2025 test year, in the words of forecast.CRITERIA (A13)."""
+    """The model's verdict on the 2025 test year, in the words of forecast.CRITERIA."""
     out = []
     for p in ("PM10", "PM2.5"):
         passed, failed = fc.verdict(acceptance, p)
@@ -234,6 +249,18 @@ def pin(r) -> rx.Component:
     )
 
 
+def place(name: str, xy: tuple[float, float], url: str) -> rx.Component:
+    x, y = xy
+    hint = f"{name} – opens a video on YouTube in a new tab"
+    return A.create(
+        rx.el.title(hint),
+        rx.el.circle(cx=f"{x:.1f}", cy=f"{y:.1f}", r=f"{PLACE_HALO}", class_name="halo", style={"--i": "10"}),
+        rx.el.circle(cx=f"{x:.1f}", cy=f"{y:.1f}", r="7", class_name="place-dot"),
+        rx.el.text(name, x=f"{x - 14:.1f}", y=f"{y + 7:.1f}", text_anchor="end", class_name="label"),
+        href=url, target="_blank", rel="noopener noreferrer", aria_label=hint, class_name="place",
+    )
+
+
 def shape_key() -> rx.Component:
     """What the marker shapes mean; the warning threshold in words."""
     return rx.el.div(
@@ -244,12 +271,14 @@ def shape_key() -> rx.Component:
 
 def the_map() -> rx.Component:
     return rx.el.figure(
-        rx.el.svg(rx.el.path(d=PATH, class_name="land"), rx.foreach(TomorrowState.pins, pin), view_box=VIEWBOX,
-                  class_name="map", role="img",
+        # The places come after the pins, so a city's halo never covers their link. role="group", not "img": an image
+        # hides the links inside it from screen readers.
+        rx.el.svg(rx.el.path(d=PATH, class_name="land"), rx.foreach(TomorrowState.pins, pin),
+                  *[place(*p) for p in PLACES], view_box=VIEWBOX, class_name="map", role="group",
                   aria_label="Map of Poland with tomorrow's chance of exceeding the daily limit in 10 cities"),
         rx.el.figcaption("The bigger the halo, the higher the chance of exceeding the daily limit tomorrow.",
                          class_name="caption"),
-        # In autumn every halo is small; the preview shows a real smog day of the test year (author, 2026-10-09).
+        # In autumn every halo is small; the preview shows a real smog day of the test year
         rx.el.p(rx.cond(TomorrowState.preview,
                         rx.el.a("Back to tomorrow's forecast", href="/", class_name="link"),
                         rx.el.a(f"See what a smog day looked like: {long_day(PREVIEW_DAY)}", href="/tomorrow/preview",
