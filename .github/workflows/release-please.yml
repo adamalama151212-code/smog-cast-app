@@ -6,8 +6,8 @@
 # To put a release on an environment again later: Actions -> deploy -> "Use workflow from" = the tag.
 #
 # Repo setting needed once: Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull
-# requests". A release PR opened with GITHUB_TOKEN does not start ci.yml – it only changes VERSION and the
-# CHANGELOG, everything else was tested in the pull requests it collects.
+# requests". ci.yml skips its tests on the release PR – it only changes VERSION and the CHANGELOG, everything else
+# was tested in the pull requests it collects.
 # =============================================================================
 name: release-please
 
