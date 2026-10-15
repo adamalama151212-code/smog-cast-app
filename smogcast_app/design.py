@@ -67,6 +67,7 @@ RADIUS = {"small": 4, "control": 8, "card": 12, "pill": 999}
 MARK = {"thin": 6, "bar": 10}                                      # px: thickness of probability bars / chart bars
 WIDTH = {"page": 1280, "text": 640, "thread": 820}                 # thread: the assistant's conversation
 TARGET = 40                                                        # px: smallest round button (touch target)
+TABBAR = 60                                                        # px: the phone tab bar, without the safe area
 GUTTER = {"desktop": 36, "phone": 16}
 PHONE_MAX = 720                                                    # px: below this the phone layout applies
 MOTION = {"fast": 160, "base": 240, "slow": 600}                   # ms; all zero under prefers-reduced-motion
@@ -90,7 +91,7 @@ def stylesheet() -> str:
              **{f"font-{k}": v for k, v in FONT.items()},
              **{f"fs-{k}": f"{s}px" for k, (s, _) in TYPE.items()},
              **{f"lh-{k}": f"{h}px" for k, (_, h) in TYPE.items()},
-             **{f"{k}-width": f"{v}px" for k, v in WIDTH.items()}, "target": f"{TARGET}px",
+             **{f"{k}-width": f"{v}px" for k, v in WIDTH.items()}, "target": f"{TARGET}px", "tabbar": f"{TABBAR}px",
              "gutter": f"{GUTTER['desktop']}px",
              **{f"motion-{k}": f"{v}ms" for k, v in MOTION.items()}, "ease": EASE}
     phone = {**{f"fs-{k}": f"{s}px" for k, (s, _) in TYPE_PHONE.items()},

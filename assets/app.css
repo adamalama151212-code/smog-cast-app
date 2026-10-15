@@ -374,9 +374,20 @@ html, body { background: var(--page); }
   .pair-table > .table { display: none; }
   .bar-row { grid-template-columns: minmax(0, 1fr) auto; } .bar-track { grid-column: 1 / -1; grid-row: 2; }
   .msg.user { max-width: 92%; }
-  .composer { bottom: calc(var(--space-8) + var(--space-2)); }
+  /* the question field docks on the tab bar: a strip as wide as the screen, so nothing of the conversation shows
+     around it or slips under it; the pill moves to the field itself */
+  .composer { position: fixed; inset: auto 0 calc(var(--tabbar) + env(safe-area-inset-bottom)) 0; z-index: 10; margin: 0;
+    box-sizing: border-box; padding: var(--space-2) var(--gutter); background: var(--surface); border: 0;
+    border-top: 1px solid var(--line); border-radius: 0; box-shadow: none; }
+  .composer:focus-within { outline: none; border-color: var(--line); }
+  .ask-input { padding: var(--space-2) var(--space-4); background: var(--raised); border: 1px solid var(--control);
+    border-radius: var(--radius-pill); }
+  .ask-input:focus { border-color: var(--focus); outline: 2px solid var(--focus); outline-offset: 1px;
+    border-radius: var(--radius-pill); }   /* the general focus ring would square it off */
+  .app:has(.composer) .footer { padding-bottom: calc(var(--space-8) + var(--space-5) + var(--space-8)); }
   .footer { padding-bottom: calc(var(--space-8) + var(--space-5)); }
   .tabbar { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: fixed; inset: auto 0 0 0; z-index: 10;
+    box-sizing: border-box; height: calc(var(--tabbar) + env(safe-area-inset-bottom));
     background: var(--surface); border-top: 1px solid var(--line); padding: var(--space-1) var(--space-1)
     calc(var(--space-1) + env(safe-area-inset-bottom)); }
   .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-2) 0; color: var(--muted);
