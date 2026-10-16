@@ -11,6 +11,43 @@ no Spark and no Java in the image.
 The project's other repositories: the data pipeline (Databricks, asset bundle) and the infrastructure (Terraform).
 The project's working documents (journal, migration plan, handoff notes) are kept outside this repository.
 
+## Screenshots
+
+The hosted app on 16 October 2026 (dark theme, live data from the DEV warehouse). The images are in `docs/img/`.
+
+**Tomorrow** – the start page: the answer in one sentence, the map of Poland (the bigger the halo, the higher the
+chance of exceeding the daily limit) and the ranked list of the 10 cities.
+
+![Tomorrow](docs/img/tomorrow.png)
+
+**City** – one city in detail: tomorrow's forecast for both pollutants in words and how reliable such a percentage was
+in the 2025 test year.
+
+![City](docs/img/city.png)
+
+**Model** – how good the model is: the five tests fixed before training and the Brier score of every model.
+
+![Model](docs/img/model.png)
+
+**Data quality** – what happened to the readings of the live GIOŚ feed: valid, rejected and why.
+
+![Data quality](docs/img/data-quality.png)
+
+**Assistant** – questions in plain words; every answer says where it comes from and shows its SQL or its sources.
+
+![Assistant](docs/img/assistant.png)
+
+**Info** – how the forecast is made, in plain words.
+
+![Info](docs/img/info.png)
+
+**On a phone** – the same pages with a tab bar at the bottom.
+
+<p>
+  <img src="docs/img/phone-tomorrow.png" alt="Tomorrow on a phone" width="300">
+  <img src="docs/img/phone-assistant.png" alt="Assistant on a phone" width="300">
+</p>
+
 ## Structure
 
 | File | What it does |
@@ -18,6 +55,7 @@ The project's working documents (journal, migration plan, handoff notes) are kep
 | `smogcast/app/` | the app's logic, **this repo's own, edited here**: `assistant` (routing, prompts, RAG; for a question about the data the language model writes one SQL query, which the guardrails check before it runs – the same general model as for everything else, no separate SQL model), `forecast`, `guardrails`, `llm`, `rag`, `text`, `gold.py` (warehouse / saved copy), `config.py`, `services.py` (the assistant, the model loaded at start), `conf/app.yaml` |
 | `smogcast/app/conf/{cities,thresholds,model,gold_dictionary}.yaml`, `smogcast/core/schema.py` | **the data contract – a copy from the pipeline repo, not to be edited here** (the pipeline produces the gold tables according to these files; the dictionary becomes the descriptions, tags and masks in Unity Catalog). A change in the pipeline → `python tools/copy_logic.py`; checksums in `smogcast/app/COPIED.txt`, `--check` compares with the pipeline |
 | `docs/rag/`, `data/rag_sources/`, `data/rag_index/` | **the assistant's knowledge base, all of it here (since 2026-10-11):** documents written for the assistant, the official sources as downloaded (PDF/HTML) and the index built from them (436 passages) |
+| `docs/img/` | the screenshots of this README (the hosted app); not in the image |
 | `smogcast_app/design.py` | design tokens (colours of both themes, forecast states, typography, spacing, motion) → `assets/design.css` |
 | `assets/app.css` | component styles, built on the tokens only |
 | `smogcast_app/components/` | `shell.py` (top bar, bottom bar on a phone, footer with the data source and "Refresh data", page header, loading and error states, SQL panel, state badge), `icons.py` (own icons) |

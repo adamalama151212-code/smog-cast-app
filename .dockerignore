@@ -13,5 +13,6 @@ data/rag_sources
 # the app, and the image is public. The knowledge-base documents in docs/rag stay.
 *.md
 docs/*.md
+docs/img
 .github
 .mcp.json
