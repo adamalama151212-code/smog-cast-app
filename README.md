@@ -1,5 +1,8 @@
 # smog-cast-app
 
+**The app:** [ca-smogcast-app-dev.bravesmoke-11653194.polandcentral.azurecontainerapps.io](https://ca-smogcast-app-dev.bravesmoke-11653194.polandcentral.azurecontainerapps.io/)
+(the app is, or was, hosted at this address)
+
 The app of the **smogcast** project (interface built with [Reflex](https://reflex.dev)): will the daily PM10 / PM2.5
 limit be exceeded tomorrow in one of the 10 largest cities of Poland, and how certain is that. It reads its data from
 the **`gold_secure`** views (Unity Catalog, row- and column-level security) through a **Databricks SQL Warehouse** –
