@@ -74,6 +74,28 @@ in the 2025 test year.
 
 ## Running locally (Docker, Git Bash)
 
+### Quick start
+
+You need **Docker Desktop** and **Git Bash** (on Windows); for the real data also the **Databricks CLI**, signed in to
+the workspace with a profile (`databricks auth login --host https://adb-<workspace>.azuredatabricks.net --profile <name>`).
+
+```bash
+git clone https://github.com/adamalama151212-code/smog-cast-app.git && cd smog-cast-app
+cp .env.example .env          # then fill it in – see "Settings" below
+. tools/dev-env.sh            # a short-lived Databricks token for this shell (skip it without a warehouse)
+docker compose up -d app      # the first run builds the image (PyTorch, the embedding model, the frontend): a few minutes
+# open http://localhost:3000
+```
+
+- **The data:** the app reads the `gold_secure` views of the smogcast pipeline through a SQL Warehouse – set
+  `SMOGCAST_DATA=auto` and the `DATABRICKS_*` lines of `.env`. Without access to such a workspace the pages show that
+  the data could not be loaded: the saved copy (`tools/sample`) is not in this repository.
+- **The language model:** any OpenAI-compatible endpoint (`SMOGCAST_LLM_*` in `.env`; the hosted app uses Cerebras
+  `gpt-oss-120b`). Without one the assistant still answers about tomorrow's forecast and the data dictionary and
+  shows document passages; questions about other numbers need the model.
+
+### Commands
+
 ```bash
 . tools/dev-env.sh            # the workspace, the warehouse and a short-lived token (about 1 h, in the shell's memory only)
 docker compose up -d app      # frontend http://localhost:3000, backend :8000; code changes reload by themselves
