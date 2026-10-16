@@ -11,6 +11,43 @@ no Spark and no Java in the image.
 The project's other repositories: the data pipeline (Databricks, asset bundle) and the infrastructure (Terraform).
 The project's working documents (journal, migration plan, handoff notes) are kept outside this repository.
 
+## Screenshots
+
+The hosted app on 16 October 2026 (dark theme, live data from the DEV warehouse). The images are in `docs/img/`.
+
+**Tomorrow** – the start page: the answer in one sentence, the map of Poland (the bigger the halo, the higher the
+chance of exceeding the daily limit) and the ranked list of the 10 cities.
+
+![Tomorrow](docs/img/tomorrow.png)
+
+**City** – one city in detail: tomorrow's forecast for both pollutants in words and how reliable such a percentage was
+in the 2025 test year.
+
+![City](docs/img/city.png)
+
+**Model** – how good the model is: the five tests fixed before training and the Brier score of every model.
+
+![Model](docs/img/model.png)
+
+**Data quality** – what happened to the readings of the live GIOŚ feed: valid, rejected and why.
+
+![Data quality](docs/img/data-quality.png)
+
+**Assistant** – questions in plain words; every answer says where it comes from and shows its SQL or its sources.
+
+![Assistant](docs/img/assistant.png)
+
+**Info** – how the forecast is made, in plain words.
+
+![Info](docs/img/info.png)
+
+**On a phone** – the same pages with a tab bar at the bottom.
+
+<p>
+  <img src="docs/img/phone-tomorrow.png" alt="Tomorrow on a phone" width="300">
+  <img src="docs/img/phone-assistant.png" alt="Assistant on a phone" width="300">
+</p>
+
 ## Structure
 
 | File | What it does |
@@ -18,6 +55,7 @@ The project's working documents (journal, migration plan, handoff notes) are kep
 | `smogcast/app/` | the app's logic, **this repo's own, edited here**: `assistant` (routing, prompts, RAG; for a question about the data the language model writes one SQL query, which the guardrails check before it runs – the same general model as for everything else, no separate SQL model), `forecast`, `guardrails`, `llm`, `rag`, `text`, `gold.py` (warehouse / saved copy), `config.py`, `services.py` (the assistant, the model loaded at start), `conf/app.yaml` |
 | `smogcast/app/conf/{cities,thresholds,model,gold_dictionary}.yaml`, `smogcast/core/schema.py` | **the data contract – a copy from the pipeline repo, not to be edited here** (the pipeline produces the gold tables according to these files; the dictionary becomes the descriptions, tags and masks in Unity Catalog). A change in the pipeline → `python tools/copy_logic.py`; checksums in `smogcast/app/COPIED.txt`, `--check` compares with the pipeline |
 | `docs/rag/`, `data/rag_sources/`, `data/rag_index/` | **the assistant's knowledge base, all of it here (since 2026-10-11):** documents written for the assistant, the official sources as downloaded (PDF/HTML) and the index built from them (436 passages) |
+| `docs/img/` | the screenshots of this README (the hosted app); not in the image |
 | `smogcast_app/design.py` | design tokens (colours of both themes, forecast states, typography, spacing, motion) → `assets/design.css` |
 | `assets/app.css` | component styles, built on the tokens only |
 | `smogcast_app/components/` | `shell.py` (top bar, bottom bar on a phone, footer with the data source and "Refresh data", page header, loading and error states, SQL panel, state badge), `icons.py` (own icons) |
@@ -35,6 +73,28 @@ The project's working documents (journal, migration plan, handoff notes) are kep
 | `.github/workflows/release-please.yml`, `release-please-config.json`, `.release-please-manifest.json`, `VERSION`, `CHANGELOG.md` | **releases** – every merge to `main` updates one "release PR" with the next version (from the commit messages: `feat:` → minor, `fix:` → patch) and the changelog. Merging that PR bumps `VERSION`, tags the commit (`v0.2.0`), creates a GitHub release and deploys the tag to `dev`; the image also gets the version as a tag (`ghcr.io/<repo>:v0.2.0`). Needs once: Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests" |
 
 ## Running locally (Docker, Git Bash)
+
+### Quick start
+
+You need **Docker Desktop** and **Git Bash** (on Windows); for the real data also the **Databricks CLI**, signed in to
+the workspace with a profile (`databricks auth login --host https://adb-<workspace>.azuredatabricks.net --profile <name>`).
+
+```bash
+git clone https://github.com/adamalama151212-code/smog-cast-app.git && cd smog-cast-app
+cp .env.example .env          # then fill it in – see "Settings" below
+. tools/dev-env.sh            # a short-lived Databricks token for this shell (skip it without a warehouse)
+docker compose up -d app      # the first run builds the image (PyTorch, the embedding model, the frontend): a few minutes
+# open http://localhost:3000
+```
+
+- **The data:** the app reads the `gold_secure` views of the smogcast pipeline through a SQL Warehouse – set
+  `SMOGCAST_DATA=auto` and the `DATABRICKS_*` lines of `.env`. Without access to such a workspace the pages show that
+  the data could not be loaded: the saved copy (`tools/sample`) is not in this repository.
+- **The language model:** any OpenAI-compatible endpoint (`SMOGCAST_LLM_*` in `.env`; the hosted app uses Cerebras
+  `gpt-oss-120b`). Without one the assistant still answers about tomorrow's forecast and the data dictionary and
+  shows document passages; questions about other numbers need the model.
+
+### Commands
 
 ```bash
 . tools/dev-env.sh            # the workspace, the warehouse and a short-lived token (about 1 h, in the shell's memory only)
